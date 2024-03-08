@@ -1,7 +1,11 @@
-import { TbBrandFacebookFilled, TbBrandGithub, TbBrandInstagram, TbBrandTwitterFilled } from "react-icons/tb";
+import {
+  TbBrandFacebookFilled,
+  TbBrandGithub,
+  TbBrandInstagram,
+  TbBrandTwitterFilled,
+} from "react-icons/tb";
 import Newsletter from "./Newsletter";
 import Link from "next/link";
-
 
 const Footer = () => {
   return (
@@ -30,7 +34,7 @@ const Footer = () => {
             </Link>
           </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4">
+        <div className="w-full md:w-3/4 grid gap-6 grid-cols-2 lg:grid-cols-4">
           <div className="">
             <p className="font-medium uppercase">Company</p>
             <br />
@@ -74,7 +78,11 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col lg:flex-row gap-3 justify-between">
+      <br />
+      <div className="md:hidden">
+        <hr />
+      </div>
+      <div className="contain flex flex-col lg:flex-row gap-3 md:justify-between items-center">
         <p>Kedvis Mart 2024 &copy;. All rights reserved.</p>
         <div className="flex gap-2">
           <img src="/images/visa.png" alt="" />
