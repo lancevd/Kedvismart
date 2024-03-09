@@ -28,8 +28,8 @@ const Header = () => {
           </div>
         </div>
       </div>
-      <nav className="bg-white py-4 ">
-        <div className="contain flex gap-3 justify-between items-center">
+      <nav className="contain flex gap-3 justify-between items-center border-b bg-white py-4 ">
+        {/* <div className=""> */}
           <Link href={"/"}>
             <h1 className="font-bold">K.Mart</h1>
           </Link>
@@ -59,7 +59,7 @@ const Header = () => {
               <TbUserCircle />
             </Link>
           </menu>
-        </div>
+        {/* </div> */}
       </nav>
     </header>
   );
