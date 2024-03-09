@@ -5,7 +5,7 @@ import React from "react";
 
 const page = () => {
   return (
-    <main className="contain">
+    <main className="contain py-4">
       <section className="flex flex-col md:flex-row gap-4 lg:gap-8">
         <div className="w-full md:w-1/2">
           <Gallery />

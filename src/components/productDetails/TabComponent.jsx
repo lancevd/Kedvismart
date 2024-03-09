@@ -1,12 +1,13 @@
 'use client'
 import React, { useState } from "react";
+import Reviews from "./Reviews";
 
 const TabComponent = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
     { title: "Product Details", content: "Product details content goes here." },
-    { title: "Reviews", content: "Reviews content goes here." },
+    { title: "Reviews", content: <Reviews /> },
     { title: "FAQs", content: "No FAQs available for this product." },
   ];
 
