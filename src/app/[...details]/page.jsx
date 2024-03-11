@@ -1,5 +1,6 @@
 import Gallery from "@/components/productDetails/Gallery";
 import ProductInfo from "@/components/productDetails/ProductInfo";
+import RelatedProducts from "@/components/productDetails/RelatedProducts";
 import TabComponent from "@/components/productDetails/TabComponent";
 import React from "react";
 
@@ -17,6 +18,9 @@ const page = () => {
       <br />
       <div className="space"></div>
       <TabComponent />
+      <br />
+      <div className="space"></div>
+      <RelatedProducts />
     </main>
   );
 };
