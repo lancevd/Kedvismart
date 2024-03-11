@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { TbChevronDown, TbChevronRight } from "react-icons/tb";
+import { TbCheck, TbChevronDown, TbChevronRight } from "react-icons/tb";
 import PriceFilter from "./price/PriceFilter";
 
 const ColorsToggle = ({ items, title }) => {
   const [openIndex, setOpenIndex] = useState(true);
-
+   
   const handleToggle = () => {
     setOpenIndex(!openIndex);
   };
@@ -20,7 +20,7 @@ const ColorsToggle = ({ items, title }) => {
       </div>
       {openIndex && (
         <div className="ml-3">
-          <PriceFilter />
+          
         </div>
       )}
     </div>
