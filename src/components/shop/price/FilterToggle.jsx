@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { TbChevronDown, TbChevronRight } from "react-icons/tb";
-import PriceFilter from "./price/PriceFilter";
+import PriceFilter from "./PriceFilter";
 
 const FilterToggle = ({ items, title }) => {
   const [openIndex, setOpenIndex] = useState(true);

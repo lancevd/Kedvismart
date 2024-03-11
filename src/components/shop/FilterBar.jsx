@@ -1,24 +1,23 @@
 import { TbFilter } from "react-icons/tb";
 import Toggle from "./Toggle";
-import FilterToggle from "./FilterToggle";
+import FilterToggle from "./price/FilterToggle";
 import ColorsToggle from "./ColorsToggle";
 
 const FilterBar = () => {
-    const items = [
-      {
-        title: "Clothes",
-        content: ["Men", "Women", "Casual"],
-      },
-      {
-        title: "Shoes",
-        content: ["Corporate", "Formal", "Casual"],
-      },
-      {
-        title: "Accessories",
-        content: [],
-      },
-    ];
-
+  const items = [
+    {
+      title: "Clothes",
+      content: ["Men", "Women", "Casual"],
+    },
+    {
+      title: "Shoes",
+      content: ["Corporate", "Formal", "Casual"],
+    },
+    {
+      title: "Accessories",
+      content: [],
+    },
+  ];
 
   return (
     <section>
@@ -39,7 +38,7 @@ const FilterBar = () => {
       <div className="h-2"></div>
       <hr />
       <div className="h-2"></div>
-      <ColorsToggle />
+      <ColorsToggle title={"Colors"} />
     </section>
   );
 };
