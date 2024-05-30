@@ -21,13 +21,14 @@ const ColorsToggle = ({ items, title }) => {
       </div>
       {openIndex && (
         <div className="ml-3 flex flex-wrap gap-2">
-          <ColorCheck color="#000000" />
-          <ColorCheck color="red" />
-          <ColorCheck color="green-500" />
-          <ColorCheck color="blue-800" />
-          <ColorCheck color="grey" />
-          <ColorCheck color="purple" />
-          <ColorCheck color="white" />
+          <ColorCheck color="#00C12B" />
+          <ColorCheck color="#F50606" />
+          <ColorCheck color="#F5DD06" />
+          <ColorCheck color="#F57906" />
+          <ColorCheck color="#06CAF5" />
+          <ColorCheck color="#ffffff" />
+          <ColorCheck color="#7D06F5" />
+          <ColorCheck color="#F506A4" />
         </div>
       )}
     </div>
