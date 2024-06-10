@@ -13,9 +13,7 @@ const ColorCheck = ({ color }) => {
   return (
     <div className="flex items-center space-x-2">
       <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border ${
-          isChecked ? "border-2" : "border"
-        }`}
+        className={`w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border border-black `}
         onClick={handleCheckboxChange}
         style={{
           backgroundColor: color,

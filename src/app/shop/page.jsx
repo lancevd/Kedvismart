@@ -1,6 +1,7 @@
 "use client";
 
 import FilterBar from "@/components/shop/FilterBar";
+import Products from "@/components/shop/Products";
 
 const page = () => {
   return (
@@ -8,7 +9,9 @@ const page = () => {
       <div className="rounded-2xl col-span-1 border p-2 hidden md:block">
         <FilterBar />
       </div>
-      <div className="md:col-span-2 lg:col-span-3"></div>
+      <div className="md:col-span-2 lg:col-span-3">
+        <Products />
+      </div>
     </main>
   );
 };
