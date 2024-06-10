@@ -7,7 +7,7 @@ import { TbStarFilled, TbStarHalfFilled } from "react-icons/tb";
 const ProductCard = ({ info }) => {
   return (
     <div className="card">
-      <Link href={"/details/old"}>
+      <Link href={`/details/${info.name}`}>
         <div className="rounded-3xl bg-white overflow-hidden shadow-xl w-full h-60 lg:h-80 mx-auto my-4">
           <img
             src={info.image || "https://via.placeholder.com/200"}
@@ -16,7 +16,7 @@ const ProductCard = ({ info }) => {
           />
         </div>
       </Link>
-      <Link href={"/details/old"}>
+      <Link href={`/details/${info.name}`}>
         <h4>{info.name}</h4>
       </Link>
       <div className="flex gap-1 text-[#FFC633]">

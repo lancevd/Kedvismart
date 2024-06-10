@@ -20,13 +20,6 @@ const Products = () => {
             ))}
         </div>
         <br />
-        <div className="w-full flex justify-center">
-          <Link href={"/shop"}>
-            <button className="border border-[var(--primary)] py-2 px-4 rounded-2xl hover:bg-[var(--primary)] hover:text-white">
-              View all
-            </button>
-          </Link>
-        </div>
       </div>
     </section>
   );
