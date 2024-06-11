@@ -1,10 +1,10 @@
-import { TbFilter } from "react-icons/tb";
+import { TbFilter, TbX } from "react-icons/tb";
 import Toggle from "./Toggle";
 import FilterToggle from "./price/FilterToggle";
 import ColorsToggle from "./ColorsToggle";
 import SizesFilter from "./SizesFilter";
 
-const FilterBar = () => {
+const FilterBar = ({showFilter}) => {
   const items = [
     {
       title: "Clothes",
@@ -25,7 +25,12 @@ const FilterBar = () => {
       <div className="flex  items-center justify-between">
         <h5 className="bold">Filters</h5>
         <div className="">
-          <TbFilter />
+          <span className="hidden md:block">
+            <TbFilter />
+          </span>
+          <span className="md:hidden cursor-pointer" onClick={()=> showFilter(false)}>
+            <TbX />
+          </span>
         </div>
       </div>
       <div className="h-2"></div>

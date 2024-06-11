@@ -4,17 +4,17 @@ import { cardData } from "../CardData.js";
 import { RxMixerVertical } from "react-icons/rx";
 import Link from "next/link";
 
-const Products = () => {
+const Products = ({showFilter}) => {
   // console.log(cardData);
 
   return (
     <section className="w-full">
       <div className="contain">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-6 justify-between">
           <h2 className="font-bold text-center">Products</h2>
           <div className="text-xs md:text-sm flex items-center gap-3">
             <p>Showing 1-10 of 100 Products</p>
-            <span className="lg:hidden p-2 cursor-pointer rounded-full bg-gray-200 color-black">
+            <span onClick={()=> showFilter(true)} className="md:hidden p-2 cursor-pointer rounded-full bg-gray-200 color-black">
               <RxMixerVertical />
             </span>
           </div>

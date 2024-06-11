@@ -12,7 +12,7 @@ const Footer = () => {
     <footer className="bg-[#f0f0f0] py-4">
       <Newsletter />
       <div className="space"></div>
-      <div className="contain flex flex-col gap-4 lg:gap-12 md:flex-row">
+      <div className="contain flex flex-col gap-4 md:gap-12 md:flex-row">
         <div className="w-full md:w-1/4">
           <h1 className="font-bold">KedvisMart</h1>
           <p>
