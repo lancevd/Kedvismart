@@ -1,13 +1,13 @@
-// contexts/cartContext.js
 'use client'
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
+// Create the Cart context
 const CartContext = createContext();
 
+// Define the cart reducer
 const cartReducer = (state, action) => {
   switch (action.type) {
     case "ADD_ITEM":
-      // Check if the item already exists in the cart
       const existingItemIndex = state.findIndex(
         (item) => item.id === action.payload.id
       );
@@ -29,6 +29,7 @@ const cartReducer = (state, action) => {
   }
 };
 
+// CartProvider component
 export const CartProvider = ({ children }) => {
   const [cart, dispatch] = useReducer(cartReducer, []);
 
@@ -42,7 +43,9 @@ export const CartProvider = ({ children }) => {
 
   // Save cart to local storage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    if (cart.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
   }, [cart]);
 
   const addItemToCart = (item) => {
