@@ -1,4 +1,5 @@
-"use client";
+// contexts/cartContext.js
+'use client'
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
 const CartContext = createContext();
@@ -6,7 +7,19 @@ const CartContext = createContext();
 const cartReducer = (state, action) => {
   switch (action.type) {
     case "ADD_ITEM":
-      return [...state, action.payload];
+      // Check if the item already exists in the cart
+      const existingItemIndex = state.findIndex(
+        (item) => item.id === action.payload.id
+      );
+      if (existingItemIndex > -1) {
+        // Update the quantity of the existing item
+        const updatedCart = [...state];
+        updatedCart[existingItemIndex].quantity += action.payload.quantity;
+        return updatedCart;
+      } else {
+        // Add the new item to the cart
+        return [...state, action.payload];
+      }
     case "REMOVE_ITEM":
       return state.filter((item) => item.id !== action.payload);
     case "SET_CART":

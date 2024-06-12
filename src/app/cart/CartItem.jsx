@@ -1,11 +1,14 @@
+// components/CartItem.js
 "use client";
 
 import React, { useState } from "react";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { TbMinus, TbPlus } from "react-icons/tb";
+import { useCart } from "@/contexts/cartContext";
 
-const CartItem = () => {
-  const [qty, setQty] = useState(1);
+const CartItem = ({ item }) => {
+  const { removeItemFromCart, addItemToCart } = useCart();
+  const [qty, setQty] = useState(item.quantity);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -15,31 +18,49 @@ const CartItem = () => {
   const handleBlur = () => {
     if (qty === "" || isNaN(qty) || qty < 1) {
       setQty(1);
+    } else {
+      // Update the item quantity in the cart
+      addItemToCart({ ...item, quantity: qty });
+    }
+  };
+
+  const handleIncrement = () => {
+    setQty(qty + 1);
+    addItemToCart({ ...item, quantity: qty + 1 });
+  };
+
+  const handleDecrement = () => {
+    if (qty > 1) {
+      setQty(qty - 1);
+      addItemToCart({ ...item, quantity: qty - 1 });
     }
   };
 
   return (
-    <div className="flex justify-between gap-4 ">
+    <div className="flex justify-between gap-4">
       <div className="flex gap-4">
         <div className="rounded-lg w-[4rem] h-[4rem] md:w-[6rem] md:h-[6rem] items-baseline overflow-hidden">
-          <img src="/images/jeans short.png" alt="" className="w-full" />
+          <img src={item.image} alt={item.name} className="w-full" />
         </div>
         <div className="flex flex-col justify-between">
-          <h4>Name</h4>
-          <p className="text-xs">Size: XL</p>
-          <p className="text-xs">Color: Red</p>
+          <h4>{item.name}</h4>
+          <p className="text-xs">Size: {item.size}</p>
+          <p className="text-xs">Color: {item.color}</p>
           <p className="font-medium">
-            &#8358;<span>2500</span>
+            &#8358;<span>{item.price}</span>
           </p>
         </div>
       </div>
-      <div className="flex flex-col justify-between items-end">
-        <p className="text-red-500 cursor-pointer">
+      <div className="flex flex-col justify-between">
+        <button
+          onClick={() => removeItemFromCart(item.id)}
+          className="text-red-500"
+        >
           <RiDeleteBinFill />
-        </p>
+        </button>
 
         <div className="bg-gray-200 flex flex-row justify-between rounded-2xl w-24 py-1 px-2">
-          <button onClick={() => setQty(qty > 1 ? qty - 1 : 1)}>
+          <button onClick={handleDecrement}>
             <TbMinus />
           </button>
           <input
@@ -49,7 +70,7 @@ const CartItem = () => {
             onChange={handleChange}
             onBlur={handleBlur}
           />
-          <button onClick={() => setQty(qty + 1)}>
+          <button onClick={handleIncrement}>
             <TbPlus />
           </button>
         </div>
