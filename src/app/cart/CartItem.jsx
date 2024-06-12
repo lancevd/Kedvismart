@@ -51,7 +51,7 @@ const CartItem = ({ item }) => {
           </p>
         </div>
       </div>
-      <div className="flex flex-col justify-between">
+      <div className="flex flex-col justify-between items-end">
         <button
           onClick={() => removeItemFromCart(item.id)}
           className="text-red-500"

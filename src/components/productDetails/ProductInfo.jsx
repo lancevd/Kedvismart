@@ -3,10 +3,18 @@ import React, { useState } from "react";
 import { TbCheck } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
 
-const ProductInfo = ({ product }) => {
+const ProductInfo = () => {
   const { addItemToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
+  const [product, setProduct] = useState({
+    id: 1,
+    name: "Product Name",
+    image: "/images/black jeans.png",
+    size: "Medium", // Assuming the size selection logic is not yet implemented
+    color: "Red",
+    price: 7500,
+  });
 
   const handleAddToCart = () => {
     const selectedColor =
@@ -15,11 +23,15 @@ const ProductInfo = ({ product }) => {
       id: product.id,
       name: product.name,
       image: product.image,
-      size: "Medium", // Assuming the size selection logic is not yet implemented
+      size: product.size, // Assuming the size selection logic is not yet implemented
       color: selectedColor,
       price: product.price,
       quantity: qty,
     });
+
+    // Reset the quantity and color selection
+    setQty(1);
+    setActiveColor(1);
   };
 
   if (qty < 1) {
