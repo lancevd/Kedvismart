@@ -1,18 +1,36 @@
 "use client";
 import React, { useState } from "react";
-import { TbCheck } from 'react-icons/tb'
+import { TbCheck } from "react-icons/tb";
+import { useCart } from "@/contexts/cartContext";
 
-const ProductInfo = () => {
+const ProductInfo = ({ product }) => {
+  const { addItemToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
+
+  const handleAddToCart = () => {
+    const selectedColor =
+      activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
+    addItemToCart({
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      size: "Medium", // Assuming the size selection logic is not yet implemented
+      color: selectedColor,
+      price: product.price,
+      quantity: qty,
+    });
+  };
+
   if (qty < 1) {
     setQty(1);
   }
+
   return (
     <div>
-      <h2>Product Name</h2>
+      <h2>{product.name}</h2>
       <br />
-      <p className="text-lg font-medium">&#8358;2000</p>
+      <p className="text-lg font-medium">&#8358;{product.price}</p>
       <br />
       <p>
         This graphic t-shirt which is perfect for any occasion. Crafted from a
@@ -74,7 +92,10 @@ const ProductInfo = () => {
             +
           </button>
         </div>
-        <button className="bg-[var(--primary)] p-2 text-white rounded-3xl w-full text-center">
+        <button
+          className="bg-[var(--primary)] p-2 text-white rounded-3xl w-full text-center"
+          onClick={handleAddToCart}
+        >
           Add to Cart
         </button>
       </div>
