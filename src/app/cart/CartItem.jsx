@@ -7,7 +7,7 @@ import { TbMinus, TbPlus } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
 
 const CartItem = ({ item }) => {
-  const { removeItemFromCart, addItemToCart } = useCart();
+  const { removeItemFromCart, updateItemQuantity } = useCart();
   const [qty, setQty] = useState(item.quantity);
 
   const handleChange = (e) => {
@@ -18,23 +18,26 @@ const CartItem = ({ item }) => {
   const handleBlur = () => {
     if (qty === "" || isNaN(qty) || qty < 1) {
       setQty(1);
+      updateItemQuantity(item.id, 1);
     } else {
-      // Update the item quantity in the cart
-      addItemToCart({ ...item, quantity: qty });
+      updateItemQuantity(item.id, qty);
     }
   };
 
   const handleIncrement = () => {
-    setQty(qty + 1);
-    addItemToCart({ ...item, quantity: qty + 1 });
+    const newQty = qty + 1;
+    setQty(newQty);
+    updateItemQuantity(item.id, newQty);
   };
 
   const handleDecrement = () => {
     if (qty > 1) {
-      setQty(qty - 1);
-      addItemToCart({ ...item, quantity: qty - 1 });
+      const newQty = qty - 1;
+      setQty(newQty);
+      updateItemQuantity(item.id, newQty);
     }
   };
+
 
   return (
     <div className="flex justify-between gap-4">
@@ -43,10 +46,10 @@ const CartItem = ({ item }) => {
           <img src={item.image} alt={item.name} className="w-full" />
         </div>
         <div className="flex flex-col justify-between">
-          <h4>{item.name}</h4>
+          <p className="font-bold text-sm md:text-lg">{item.name}</p>
           <p className="text-xs">Size: {item.size}</p>
           <p className="text-xs">Color: {item.color}</p>
-          <p className="font-medium">
+          <p className="font-medium text-sm md:text-base">
             &#8358;<span>{item.price}</span>
           </p>
         </div>

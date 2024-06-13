@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
 // Create the Cart context
@@ -22,6 +22,12 @@ const cartReducer = (state, action) => {
       }
     case "REMOVE_ITEM":
       return state.filter((item) => item.id !== action.payload);
+    case "UPDATE_QUANTITY":
+      return state.map((item) =>
+        item.id === action.payload.id
+          ? { ...item, quantity: action.payload.quantity }
+          : item
+      );
     case "SET_CART":
       return action.payload;
     default:
@@ -56,11 +62,18 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: "REMOVE_ITEM", payload: id });
   };
 
+  const updateItemQuantity = (id, quantity) => {
+    dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addItemToCart, removeItemFromCart }}>
+    <CartContext.Provider
+      value={{ cart, addItemToCart, removeItemFromCart, updateItemQuantity }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
+// Custom hook to use the Cart context
 export const useCart = () => useContext(CartContext);

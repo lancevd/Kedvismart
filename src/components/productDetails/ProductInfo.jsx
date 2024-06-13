@@ -23,13 +23,13 @@ const ProductInfo = () => {
       id: product.id,
       name: product.name,
       image: product.image,
-      size: product.size, // Assuming the size selection logic is not yet implemented
+      size: "Medium", // Assuming the size selection logic is not yet implemented
       color: selectedColor,
       price: product.price,
       quantity: qty,
+      totalPrice: product.price * qty,
     });
-
-    // Reset the quantity and color selection
+    
     setQty(1);
     setActiveColor(1);
   };
@@ -37,6 +37,7 @@ const ProductInfo = () => {
   if (qty < 1) {
     setQty(1);
   }
+
 
   return (
     <div>
