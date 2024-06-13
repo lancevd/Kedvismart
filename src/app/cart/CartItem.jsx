@@ -38,7 +38,7 @@ const CartItem = ({ item }) => {
     }
   };
 
-
+  
   return (
     <div className="flex justify-between gap-4">
       <div className="flex gap-4">

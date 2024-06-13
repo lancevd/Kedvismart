@@ -4,38 +4,48 @@ import CartItem from "./CartItem";
 import { LuTag } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
 
-
-const page = () => {
+const Page = () => {
   const [cart, setCart] = useState([]);
+  const [deliveryPrice] = useState(1500);
+  const [subTotal, setSubTotal] = useState(0);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem("cart"));
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(cart);
-  });
+  }, []);
+
+  useEffect(() => {
+    const subTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+    setSubTotal(subTotal);
+
+    const total = subTotal + deliveryPrice;
+    setTotal(total);
+  }, [cart, deliveryPrice]);
 
   return (
     <main className="contain py-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
       <div className="w-full lg:w-2/3 border p-4 rounded-xl">
         {cart.length < 1
           ? "There are no items in your cart. Add some items to your cart to see them here."
-          : cart.map((item) => <CartItem item={item} />)}
+          : cart.map((item) => <CartItem key={item.id} item={item} />)}
       </div>
       <div className="w-full lg:w-1/3 border p-4 rounded-xl">
         <h4 className="mb-2">Order Summary</h4>
-        <div className="flex justify-between items-enter">
+        <div className="flex justify-between items-center">
           <p className="text-[#0000006b]">Subtotal</p>
-          <p className="font-bold">&#8358;{"233"}</p>
+          <p className="font-bold">&#8358;{subTotal}</p>
         </div>
-        <div className="flex justify-between  items-enter">
+        <div className="flex justify-between items-center">
           <p className="text-[#0000006b]">Delivery Fee</p>
-          <p className="font-bold">&#8358;{"233"}</p>
+          <p className="font-bold">&#8358;{deliveryPrice}</p>
         </div>
         <br />
         <hr />
         <br />
-        <div className="flex justify-between items-enter">
+        <div className="flex justify-between items-center">
           <p className="">Total</p>
-          <p className="font-bold">&#8358;{"233"}</p>
+          <p className="font-bold">&#8358;{total}</p>
         </div>
         <br />
         <div className="flex gap-8 justify-between">
@@ -58,4 +68,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
