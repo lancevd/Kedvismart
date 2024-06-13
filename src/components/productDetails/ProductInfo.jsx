@@ -2,11 +2,16 @@
 import React, { useState } from "react";
 import { TbCheck } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
+import "react-responsive-modal/styles.css";
+import { Modal } from "react-responsive-modal";
+import Link from "next/link";
 
 const ProductInfo = () => {
   const { addItemToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
+  const [open, setOpen] = useState(false);
+
   const [product, setProduct] = useState({
     id: 1,
     name: "Product Name",
@@ -15,6 +20,9 @@ const ProductInfo = () => {
     color: "Red",
     price: 7500,
   });
+
+  const onOpenModal = () => setOpen(true);
+  const onCloseModal = () => setOpen(false);
 
   const handleAddToCart = () => {
     const selectedColor =
@@ -29,7 +37,8 @@ const ProductInfo = () => {
       quantity: qty,
       totalPrice: product.price * qty,
     });
-    
+
+    onOpenModal();
     setQty(1);
     setActiveColor(1);
   };
@@ -38,9 +47,26 @@ const ProductInfo = () => {
     setQty(1);
   }
 
-
   return (
     <div>
+      <Modal open={open} onClose={onCloseModal} center>
+        <div className="flex flex-col gap-8 justify-center items-center">
+          <h3 className="mt-6">Would you like to pay now?</h3>
+          <Link
+            href={"/cart"}
+            className="text-center w-2/3 bg-black text-white p-3 rounded-sm hover:bg-white hover:border hover:border-black hover:text-black"
+          >
+            Yes, go to cart
+          </Link>
+          <button
+            onClick={onCloseModal}
+            className="w-2/3 bg-black text-white p-3 rounded-sm hover:bg-white hover:border hover:border-black hover:text-black"
+          >
+            No, keep shopping
+          </button>
+        </div>
+      </Modal>
+
       <h2>{product.name}</h2>
       <br />
       <p className="text-lg font-medium">&#8358;{product.price}</p>
