@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CartItem from "./CartItem";
-import { LuTag } from "react-icons/lu";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 const Page = () => {
@@ -16,9 +15,11 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
+    // Calculate the subtotal
     const subTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
     setSubTotal(subTotal);
 
+    // Calculate the total including delivery fee
     const total = subTotal + deliveryPrice;
     setTotal(total);
   }, [cart, deliveryPrice]);

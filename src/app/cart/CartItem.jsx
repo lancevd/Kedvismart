@@ -1,4 +1,3 @@
-// components/CartItem.js
 "use client";
 
 import React, { useState } from "react";
@@ -38,7 +37,6 @@ const CartItem = ({ item }) => {
     }
   };
 
-  
   return (
     <div className="flex justify-between gap-4">
       <div className="flex gap-4">
@@ -51,6 +49,9 @@ const CartItem = ({ item }) => {
           <p className="text-xs">Color: {item.color}</p>
           <p className="font-medium text-sm md:text-base">
             &#8358;<span>{item.price}</span>
+          </p>
+          <p className="font-medium text-sm md:text-base">
+            Total: &#8358;<span>{item.price * qty}</span>
           </p>
         </div>
       </div>
