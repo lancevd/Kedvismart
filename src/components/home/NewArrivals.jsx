@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import Link from "next/link";
 import axios from "axios";
+import Spinner from "../Spinner";
 
 const NewArrivals = () => {
   const [cardData, setCardData] = useState([]);
@@ -36,7 +37,7 @@ const NewArrivals = () => {
         <h2 className="font-bold text-center">New Arrivals</h2>
         <br />
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {loading && <div>Loading...</div>}
+          {loading && <div className="w-full text-center"><Spinner /></div>}
           {cardData &&
             cardData.length > 0 &&
             cardData.map((item, index) => (
