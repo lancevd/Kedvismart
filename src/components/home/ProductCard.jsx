@@ -10,7 +10,7 @@ const ProductCard = ({ info }) => {
       <Link href={"/details/old"}>
         <div className="rounded-3xl bg-white overflow-hidden shadow-xl w-full h-60 lg:h-80 mx-auto my-4">
           <img
-            src={info.image || "https://via.placeholder.com/200"}
+            src={info.image.url || "https://via.placeholder.com/200"}
             alt="Product Image"
             className="h-full w-full"
           />
@@ -19,13 +19,13 @@ const ProductCard = ({ info }) => {
       <Link href={"/details/old"}>
         <h4>{info.name}</h4>
       </Link>
-      <div className="flex gap-1 text-[#FFC633]">
+      {/* <div className="flex gap-1 text-[#FFC633]">
         {[...Array(Math.floor(info.rating))].map((_, index) => (
           <TbStarFilled key={index} />
         ))}
         {info.rating % 1 !== 0 && <TbStarHalfFilled />}
-      </div>
-      <p className="font-medium text-lg">&#8358;{info.price.toFixed(2)}</p>
+      </div> */}
+      <p className="font-medium text-lg">&#8358;{info.price.formatted}</p>
     </div>
   );
 };
