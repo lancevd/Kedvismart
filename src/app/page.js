@@ -5,6 +5,7 @@ import Partners from "@/components/home/Partners";
 import Testimonials from "@/components/home/Testimonials";
 import TopSelling from "@/components/home/TopSelling";
 import React from "react";
+import axios from "axios";
 
 const page = () => {
   return (
