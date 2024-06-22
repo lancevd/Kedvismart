@@ -14,14 +14,16 @@ const page = () => {
     setId(ProdId)
   },[])
   if (id) {
-    
+    getID()
   }
 
   async function getID() {
     try {
       const response = axios.post("/api/details/singleProduct", id);
       console.log(response);
-      
+
+    } catch(error) {
+      console.log(error)
     }
   }
 
