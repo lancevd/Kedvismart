@@ -1,18 +1,29 @@
+// File path: pages/api/details/singleProduct.js
+
 import { NextResponse } from "next/server";
 import axios from "axios";
+import { getCookie } from "cookies-next";
 
 export async function GET(request) {
-  try {
-    const response = await axios.get(
-      "https://api.chec.io/v1/products?sortBy=created_at&sortDirection=desc",
-      {
-        headers: {
-          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
-        },
-      }
-    );
+  const ID = getCookie("itemID", { req: request });
+  console.log(ID);
 
-    if (response.status != 200) {
+  if (!ID) {
+    return NextResponse.json(
+      { message: "Product ID not found in cookies" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const response = await axios.get(`https://api.chec.io/v1/products/${ID}`, {
+      headers: {
+        "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+      },
+    });
+
+    if (response.status !== 200) {
+      console.log(response);
       return NextResponse.json(
         {
           message: `External API call failed with status: ${response.statusText}`,

@@ -1,37 +1,62 @@
-'use client'
+"use client";
+import Spinner from "@/components/Spinner";
 import Gallery from "@/components/productDetails/Gallery";
 import ProductInfo from "@/components/productDetails/ProductInfo";
 import RelatedProducts from "@/components/productDetails/RelatedProducts";
 import TabComponent from "@/components/productDetails/TabComponent";
 import axios from "axios";
+import { setCookie } from "cookies-next";
 import React, { useEffect, useState } from "react";
 
-const page = () => {
-  const [id, setId] =  useState(null)
-  useEffect(()=>{
-    const { searchParams } = new URL(window.location);
+const ProductPage = () => {
+  const [products, setProducts] = useState(null);
+  const [id, setId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const { searchParams } = new URL(window.location.href);
     const ProdId = searchParams.get("id");
-    setId(ProdId)
-  },[])
-  if (id) {
-    getID()
-  }
-
-  async function getID() {
-    try {
-      const response = axios.post("/api/details/singleProduct", id);
-      console.log(response);
-
-    } catch(error) {
-      console.log(error)
+    setId(ProdId);
+    if (ProdId) {
+      setCookie("itemID", ProdId);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      getProducts();
+    }
+  }, [id]);
+
+  const getProducts = async () => {
+    setLoading(true);
+
+    try {
+      const response = await axios.get("/api/details/singleProduct");
+      const result = response.data;
+      if (result) {
+        setProducts(result);
+        setLoading(false);
+        console.log("THIS IS PRODUCT DATA", result);
+      }
+    } catch (error) {
+      console.log("THERE IS AN ERROR", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (products) {
+      console.log("THIS IS PRODUCT STATE DATA", products); // Log state data here
+    }
+  }, [products]);
 
   return (
     <main className="contain py-4">
       <section className="flex flex-col md:flex-row gap-4 lg:gap-8">
         <div className="w-full md:w-1/2">
-          <Gallery />
+          {products ? <Gallery items={products.items} /> : <Spinner />}
         </div>
         <div className="w-full md:w-1/2">
           <ProductInfo />
@@ -47,4 +72,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ProductPage;
