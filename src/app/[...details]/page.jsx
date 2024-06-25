@@ -40,7 +40,6 @@ const ProductPage = () => {
         console.log("THIS IS PRODUCT DATA", result);
       }
     } catch (error) {
-      console.log("THERE IS AN ERROR", error);
     } finally {
       setLoading(false);
     }
