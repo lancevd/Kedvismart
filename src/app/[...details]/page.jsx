@@ -48,7 +48,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (products) {
-      console.log("THIS IS PRODUCT STATE DATA", products); // Log state data here
+      console.log("THIS IS PRODUCT STATE DATA", products); 
     }
   }, [products]);
 
@@ -56,7 +56,7 @@ const ProductPage = () => {
     <main className="contain py-4">
       <section className="flex flex-col md:flex-row gap-4 lg:gap-8">
         <div className="w-full md:w-1/2">
-          {products ? <Gallery items={products.items} /> : <Spinner />}
+          {products ? <Gallery items={products.assets} /> : <Spinner />}
         </div>
         <div className="w-full md:w-1/2">
           <ProductInfo />

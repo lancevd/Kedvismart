@@ -23,7 +23,7 @@ export async function GET(request) {
     });
 
     if (response.status !== 200) {
-      console.log(response);
+      // console.log(response);
       return NextResponse.json(
         {
           message: `External API call failed with status: ${response.statusText}`,
