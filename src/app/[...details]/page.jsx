@@ -67,7 +67,7 @@ const ProductPage = () => {
       </section>
       <br />
       <div className="space"></div>
-      <TabComponent />
+      <TabComponent description={products && products.description} />
       <br />
       <div className="space"></div>
       <RelatedProducts />
