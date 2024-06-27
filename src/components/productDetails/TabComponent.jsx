@@ -7,7 +7,7 @@ const TabComponent = ({description}) => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { title: "Product Details", content: description ? description : <Spinner /> },
+    { title: "Product Details", content: description ? <div dangerouslySetInnerHTML = {{__html:description}} /> : <Spinner /> },
     { title: "Reviews", content: <Reviews /> },
     { title: "FAQs", content: "No FAQs available for this product." },
   ];
