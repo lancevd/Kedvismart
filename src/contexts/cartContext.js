@@ -1,21 +1,22 @@
-'use client'
-import React, { createContext, useContext, useEffect, useState } from "react";
+'use client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 
-// Create a provider component
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
+  // Load cart from local storage on component mount
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
+    const storedCart = localStorage.getItem('cart');
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
   }, []);
 
+  // Save cart to local storage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
   const addItemToCart = (item) => {
@@ -84,7 +85,6 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the cart context
 export const useCart = () => {
   return useContext(CartContext);
 };

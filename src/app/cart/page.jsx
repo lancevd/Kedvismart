@@ -9,10 +9,29 @@ const Page = () => {
   const [subTotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
 
-  useEffect(() => {
+  const updateCartFromLocalStorage = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(cart);
-  }, []);
+  };
+
+  useEffect(() => {
+    // Initial load
+    updateCartFromLocalStorage();
+
+    // Set up the event listener
+    const handleStorageChange = (event) => {
+      if (event.key === "cart") {
+        updateCartFromLocalStorage();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [cart]);
 
   useEffect(() => {
     // Calculate the subtotal

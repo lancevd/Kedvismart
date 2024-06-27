@@ -27,7 +27,7 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const handleAddToCart = () => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
-    addItemToCart({
+    const newItem = {
       id,
       name,
       image,
@@ -36,8 +36,10 @@ const ProductInfo = ({ id, name, price, description, image }) => {
       price,
       quantity: qty,
       totalPrice: price * qty,
-    });
+    };
 
+    console.log("Adding item to cart:", newItem);
+    addItemToCart(newItem);
     onOpenModal();
     setQty(1);
     setActiveColor(1);
@@ -53,7 +55,7 @@ const ProductInfo = ({ id, name, price, description, image }) => {
         <div className="flex flex-col gap-8 justify-center items-center">
           <h3 className="mt-6">Would you like to pay now?</h3>
           <Link
-            href={"/cart"}
+            href="/cart"
             className="text-center w-2/3 bg-black text-white p-3 rounded-sm hover:bg-white hover:border hover:border-black hover:text-black"
           >
             Yes, go to cart
@@ -83,19 +85,19 @@ const ProductInfo = ({ id, name, price, description, image }) => {
               onClick={() => setActiveColor(1)}
               className="w-6 h-6 rounded-full flex items-center justify-center text-white cursor-pointer bg-blue-950"
             >
-              {activeColor == 1 && <TbCheck />}
+              {activeColor === 1 && <TbCheck />}
             </div>
             <div
               onClick={() => setActiveColor(2)}
               className="w-6 h-6 rounded-full flex items-center justify-center text-white cursor-pointer bg-green-950"
             >
-              {activeColor == 2 && <TbCheck />}
+              {activeColor === 2 && <TbCheck />}
             </div>
             <div
               onClick={() => setActiveColor(3)}
               className="w-6 h-6 rounded-full flex items-center justify-center text-white cursor-pointer bg-red-950"
             >
-              {activeColor == 3 && <TbCheck />}
+              {activeColor === 3 && <TbCheck />}
             </div>
           </div>
           <br />
