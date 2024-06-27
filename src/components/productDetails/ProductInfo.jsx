@@ -7,27 +7,19 @@ import { Modal } from "react-responsive-modal";
 import Link from "next/link";
 import Spinner from "../Spinner";
 
-const ProductInfo = (product) => {
+const ProductInfo = ({ id, name, price, description, image }) => {
   const { addItemToCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
+  const [activeSize, setActiveSize] = useState("Medium");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (product.name) {
+    if (name) {
       setLoading(false);
-    } 
-  }, [product]);
-
-  // const [product, setProduct] = useState({
-  //   id: 1,
-  //   name: "Product Name",
-  //   image: "/images/black jeans.png",
-  //   size: "Medium", // Assuming the size selection logic is not yet implemented
-  //   color: "Red",
-  //   price: 7500,
-  // });
+    }
+  }, [name]);
 
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
@@ -36,14 +28,14 @@ const ProductInfo = (product) => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
     addItemToCart({
-      id: product.id,
-      name: product.name,
-      image: product.image,
-      size: "Medium",
+      id,
+      name,
+      image,
+      size: activeSize,
       color: selectedColor,
-      price: product.price,
+      price,
       quantity: qty,
-      totalPrice: product.price * qty,
+      totalPrice: price * qty,
     });
 
     onOpenModal();
@@ -78,11 +70,11 @@ const ProductInfo = (product) => {
         <Spinner />
       ) : (
         <>
-          <h2>{product.name ? product.name : "Loading..."}</h2>
+          <h2>{name ? name : "Loading..."}</h2>
           <br />
-          <p className="text-lg font-medium">&#8358;{product.price}</p>
+          <p className="text-lg font-medium">₦{price}</p>
           <br />
-          <p>{product.description}</p>
+          <p>{description}</p>
           <br />
           <hr />
           <p className="text-sm py-2">Select colors</p>
@@ -110,13 +102,34 @@ const ProductInfo = (product) => {
           <hr />
           <p className="text-sm py-2">Choose Size</p>
           <div className="flex gap-2">
-            <p className="rounded-2xl py-1 px-3 bg-[#f0f0f0] hover:bg-[var(--primary)] hover:text-white">
+            <p
+              className={`rounded-2xl py-1 px-3 ${
+                activeSize === "Small"
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[#f0f0f0]"
+              }`}
+              onClick={() => setActiveSize("Small")}
+            >
               Small
             </p>
-            <p className="rounded-2xl py-1 px-3 bg-[#f0f0f0] hover:bg-[var(--primary)] hover:text-white">
+            <p
+              className={`rounded-2xl py-1 px-3 ${
+                activeSize === "Medium"
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[#f0f0f0]"
+              }`}
+              onClick={() => setActiveSize("Medium")}
+            >
               Medium
             </p>
-            <p className="rounded-2xl py-1 px-3 bg-[#f0f0f0] hover:bg-[var(--primary)] hover:text-white">
+            <p
+              className={`rounded-2xl py-1 px-3 ${
+                activeSize === "Large"
+                  ? "bg-[var(--primary)] text-white"
+                  : "bg-[#f0f0f0]"
+              }`}
+              onClick={() => setActiveSize("Large")}
+            >
               Large
             </p>
           </div>

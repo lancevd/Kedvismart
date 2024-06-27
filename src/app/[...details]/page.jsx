@@ -46,7 +46,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (products) {
-      console.log("THIS IS PRODUCT STATE DATA", products); 
+      console.log("THIS IS PRODUCT STATE DATA", products);
     }
   }, [products]);
 
@@ -58,6 +58,7 @@ const ProductPage = () => {
         </div>
         <div className="w-full md:w-1/2">
           <ProductInfo
+            id={products && products.id}
             name={products && products.name}
             price={products && products.price.raw}
             description={products && products.seo.description}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { TbMinus, TbPlus } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
@@ -8,6 +8,12 @@ import { useCart } from "@/contexts/cartContext";
 const CartItem = ({ item }) => {
   const { removeItemFromCart, updateItemQuantity } = useCart();
   const [qty, setQty] = useState(item.quantity);
+  const [totalPrice, setTotalPrice] = useState(item.totalPrice);
+
+  useEffect(() => {
+    setTotalPrice(item.price * qty);
+  }, [qty, item.price]);
+
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -17,23 +23,23 @@ const CartItem = ({ item }) => {
   const handleBlur = () => {
     if (qty === "" || isNaN(qty) || qty < 1) {
       setQty(1);
-      updateItemQuantity(item.id, 1);
+      updateItemQuantity(item.id, item.color, item.size, 1);
     } else {
-      updateItemQuantity(item.id, qty);
+      updateItemQuantity(item.id, item.color, item.size, qty);
     }
   };
 
   const handleIncrement = () => {
     const newQty = qty + 1;
     setQty(newQty);
-    updateItemQuantity(item.id, newQty);
+    updateItemQuantity(item.id, item.color, item.size, newQty);
   };
 
   const handleDecrement = () => {
     if (qty > 1) {
       const newQty = qty - 1;
       setQty(newQty);
-      updateItemQuantity(item.id, newQty);
+      updateItemQuantity(item.id, item.color, item.size, newQty);
     }
   };
 
@@ -51,13 +57,13 @@ const CartItem = ({ item }) => {
             &#8358;<span>{item.price}</span>
           </p>
           <p className="font-medium text-sm md:text-base">
-            Total: &#8358;<span>{item.price * qty}</span>
+            Total: &#8358;<span>{totalPrice}</span>
           </p>
         </div>
       </div>
       <div className="flex flex-col justify-between items-end">
         <button
-          onClick={() => removeItemFromCart(item.id)}
+          onClick={() => removeItemFromCart(item.id, item.color, item.size)}
           className="text-red-500"
         >
           <RiDeleteBinFill />
