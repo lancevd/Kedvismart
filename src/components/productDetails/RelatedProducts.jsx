@@ -2,8 +2,8 @@ import React from "react";
 import RelatedProductCard from "./RelatedProductCard";
 import { cardData } from "../CardData";
 
-const RelatedProducts = () => {
-  const relatedData = cardData.slice(0, 4);
+const RelatedProducts = ({relatedData}) => {
+  // const relatedData = cardData.slice(0, 4);
   // console.log(relatedData);
 
   return (
@@ -13,7 +13,8 @@ const RelatedProducts = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {relatedData &&
           relatedData.map((product, index) => (
-            <RelatedProductCard key={index} product={product} />
+            <RelatedProductCard key={index} product={product} /> 
+            // <p>Hi</p>
           ))}
       </div>
       <br />

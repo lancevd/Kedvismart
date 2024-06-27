@@ -70,7 +70,7 @@ const ProductPage = () => {
       <TabComponent description={products && products.description} />
       <br />
       <div className="space"></div>
-      <RelatedProducts />
+      <RelatedProducts relatedData={products && products.related_products} />
     </main>
   );
 };
