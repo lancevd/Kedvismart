@@ -37,7 +37,6 @@ const ProductPage = () => {
       if (result) {
         setProducts(result);
         setLoading(false);
-        console.log("THIS IS PRODUCT DATA", result);
       }
     } catch (error) {
     } finally {
@@ -58,7 +57,12 @@ const ProductPage = () => {
           {products ? <Gallery items={products.assets} /> : <Spinner />}
         </div>
         <div className="w-full md:w-1/2">
-          <ProductInfo />
+          <ProductInfo
+            name={products && products.name}
+            price={products && products.price.raw}
+            description={products && products.seo.description}
+            image={products && products.assets[0].url}
+          />
         </div>
       </section>
       <br />
