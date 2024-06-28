@@ -4,19 +4,18 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { getCookie } from "cookies-next";
 
-
 export async function GET(request) {
   const ID = getCookie("cart_id", { req: request });
 
   try {
-    const response = await axios.get(`https://api.chec.io/v1/carts/{ID}`, {
+    const response = await axios.get(`https://api.chec.io/v1/carts/${ID}`, {
       headers: {
         "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
       },
     });
 
     if (response.status !== 200) {
-      //   console.log(response);
+      console.log(response);
       return NextResponse.json(
         {
           message: `Error. API response failed with status ${response.status}`,
@@ -37,7 +36,6 @@ export async function GET(request) {
   }
 }
 
-
 /* ------------ADD ITEM TO CART -------------*/
 
 export async function POST(request) {
@@ -52,29 +50,30 @@ export async function POST(request) {
   }
 
   try {
-    const response = await axios.post(`https://api.chec.io/v1/carts/${ID}`, payload, {
-      headers: {
-        "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
-      },
-    });
+    const response = await axios.post(
+      `https://api.chec.io/v1/carts/${ID}`,
+      payload,
+      {
+        headers: {
+          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+        },
+      }
+    );
 
-    // console.log(response);
+    console.log(response);
     if (response.status !== 200) {
-      return NextResponse.json(
-        error,
-        { status: response.status }
-      );
+      return NextResponse.json(error, { status: response.status });
+    } else if (response.status === 200) {
+      const data = response.data;
+      // console.log(
+      //   "><><><<><><><<>><><><><><><><<><><><><>><><><<><<><>><<><<><<>>",
+      //   data
+      // );
+      return NextResponse.json(data, { status: 200 });
     }
-
-    const data = response.data;
-
-    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error calling external API:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json(error, { status: 500 });
   }
 }
 
@@ -83,10 +82,9 @@ export async function POST(request) {
 export async function PUT(request) {
   const ID = getCookie("cart_id", { req: request });
   const payload = await request.json();
-  console.log(`<><<>><<<<<<<<<<>>>>>>>>>>>>>>>>>>>`, payload);
 
   const itemID = payload.id;
-  const quantity = item.quantity
+  const quantity = item.quantity;
 
   if (!ID) {
     return NextResponse.json(
@@ -106,7 +104,7 @@ export async function PUT(request) {
       }
     );
 
-    // console.log(response);
+    console.log(response);
     if (response.status !== 200) {
       return NextResponse.json(error, { status: response.status });
     }

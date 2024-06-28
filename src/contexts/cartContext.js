@@ -34,22 +34,21 @@ export const CartProvider = ({ children }) => {
     console.log(response);
     const result = await response.data;
     setCart(response.data);
-    setCookie("cart_id", result);
+    setCookie("cart_id", result.id); ////////////////////////////////RESULT.ID?///////////////////////
   };
 
-  const addItemToCart = async (productID, quantity, options) => {
+  const addItemToCart = async (productID, quantity) => {
     const response = await axios.post(`/api/cart/cartStatus`, {
       id: productID,
       quantity: quantity,
-      options: options,
     });
     if (response.status != 200) {
       console.log("Error don happen o!");
     }
-    // console.log(response);
     const result = await response.data;
-    setCart(response.data);
-    setCookie("cart_id", result.id);
+    console.log(result);
+    // setCart(response.data);
+    // setCookie("cart_id", result.id);
   };
 
   const updateItemQuantity = async (productID, quantity, options) => {

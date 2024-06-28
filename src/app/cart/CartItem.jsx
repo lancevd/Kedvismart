@@ -6,14 +6,13 @@ import { TbMinus, TbPlus } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
 
 const CartItem = ({ item }) => {
-  const { removeItemFromCart, updateItemQuantity } = useCart();
+  const { removeItemFromCart, updateItemQuantity, cart } = useCart();
   const [qty, setQty] = useState(item.quantity);
   const [totalPrice, setTotalPrice] = useState(item.totalPrice);
 
   useEffect(() => {
     setTotalPrice(item.price * qty);
   }, [qty, item.price]);
-
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -47,17 +46,17 @@ const CartItem = ({ item }) => {
     <div className="flex justify-between gap-4">
       <div className="flex gap-4">
         <div className="rounded-lg w-[4rem] h-[4rem] md:w-[6rem] md:h-[6rem] items-baseline overflow-hidden">
-          <img src={item.image} alt={item.name} className="w-full" />
+          <img src={item.image.url} alt={item.name} className="w-full" />
         </div>
         <div className="flex flex-col justify-between">
           <p className="font-bold text-sm md:text-lg">{item.name}</p>
-          <p className="text-xs">Size: {item.size}</p>
-          <p className="text-xs">Color: {item.color}</p>
+          {/* <p className="text-xs">Size: {item.size}</p>
+          <p className="text-xs">Color: {item.color}</p> */}
           <p className="font-medium text-sm md:text-base">
-            &#8358;<span>{item.price}</span>
+            &#8358;<span>{item.price.raw}</span>
           </p>
           <p className="font-medium text-sm md:text-base">
-            Total: &#8358;<span>{totalPrice}</span>
+            Total: &#8358;<span>{item.price.raw * item.quantity}</span>
           </p>
         </div>
       </div>

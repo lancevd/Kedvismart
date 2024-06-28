@@ -16,7 +16,7 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(cart);
+    if (cart) console.log(cart);
   }, [cart]);
 
   useEffect(() => {
@@ -31,16 +31,16 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const handleAddToCart = () => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
-      
-      const itemExists = cart.line_items.some((item) => item.id === id);
 
-      if (itemExists) {
-        console.log("Item exists in the cart.");
-        updateItemQuantity(qty);
-      } else {
-        console.log("Item does not exist in the cart.");
-        addItemToCart(id, qty);
-      }
+    const itemExists = cart.line_items.some((item) => item.id === id);
+
+    if (itemExists) {
+      console.log("Item exists in the cart.");
+      updateItemQuantity(qty);
+    } else {
+      console.log("Item does not exist in the cart.");
+      addItemToCart(id, qty);
+    }
 
     getCart();
     onOpenModal();
@@ -49,8 +49,6 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   if (qty < 1) {
     setQty(1);
   }
-
-  
 
   return (
     <div>

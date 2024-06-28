@@ -2,53 +2,62 @@
 import React, { useEffect, useState } from "react";
 import CartItem from "./CartItem";
 import { FaArrowRightLong } from "react-icons/fa6";
+import { useCart } from "@/contexts/cartContext";
 
 const Page = () => {
-  const [cart, setCart] = useState([]);
+  // const [cart, setCart] = useState([]);
   const [deliveryPrice] = useState(1500);
   const [subTotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
-
-  const updateCartFromLocalStorage = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(cart);
-  };
-
+  const { getCart, cart } = useCart();
   useEffect(() => {
-    // Initial load
-    updateCartFromLocalStorage();
+    getCart();
+    console.log(cart);
+  }, []);
 
-    // Set up the event listener
-    const handleStorageChange = (event) => {
-      if (event.key === "cart") {
-        updateCartFromLocalStorage();
-      }
-    };
+  // const updateCartFromLocalStorage = () => {
+  //   const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  //   setCart(cart);
+  // };
 
-    window.addEventListener("storage", handleStorageChange);
+  // useEffect(() => {
+  //   // Initial load
+  //   updateCartFromLocalStorage();
 
-    // Clean up the event listener
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, [cart]);
+  //   // Set up the event listener
+  //   const handleStorageChange = (event) => {
+  //     if (event.key === "cart") {
+  //       updateCartFromLocalStorage();
+  //     }
+  //   };
 
-  useEffect(() => {
-    // Calculate the subtotal
-    const subTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
-    setSubTotal(subTotal);
+  //   window.addEventListener("storage", handleStorageChange);
 
-    // Calculate the total including delivery fee
-    const total = subTotal + deliveryPrice;
-    setTotal(total);
-  }, [cart, deliveryPrice]);
+  //   // Clean up the event listener
+  //   return () => {
+  //     window.removeEventListener("storage", handleStorageChange);
+  //   };
+  // }, [cart]);
+
+  // useEffect(() => {
+  //   // Calculate the subtotal
+  //   const subTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
+  //   setSubTotal(subTotal);
+
+  //   // Calculate the total including delivery fee
+  //   const total = subTotal + deliveryPrice;
+  //   setTotal(total);
+  // }, [cart, deliveryPrice]);
 
   return (
     <main className="contain py-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
       <div className="w-full lg:w-2/3 border p-4 rounded-xl">
-        {cart.length < 1
-          ? "There are no items in your cart. Add some items to your cart to see them here."
-          : cart.map((item) => <CartItem key={item.id} item={item} />)}
+        {cart.line_items &&
+          (cart.line_items.length < 1
+            ? "There are no items in your cart. Add some items to your cart to see them here."
+            : cart.line_items.map((item) => (
+                <CartItem key={item.id} item={item} />
+              )))}
       </div>
       <div className="w-full lg:w-1/3 border p-4 rounded-xl">
         <h4 className="mb-2">Order Summary</h4>
