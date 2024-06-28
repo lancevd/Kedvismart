@@ -43,6 +43,21 @@ export const CartProvider = ({ children }) => {
       quantity: quantity,
       options: options,
     });
+    if (response.status != 200) {
+      console.log("Error don happen o!");
+    }
+    // console.log(response);
+    const result = await response.data;
+    setCart(response.data);
+    setCookie("cart_id", result.id);
+  };
+
+  const updateItemQuantity = async (productID, quantity, options) => {
+    const response = await axios.put(`/api/cart/cartStatus`, {
+      id: productID,
+      quantity: quantity,
+      options: options,
+    });
     if (response.status !== 200) {
       console.log("Error don happen o!");
     }
@@ -59,7 +74,7 @@ export const CartProvider = ({ children }) => {
         initializeCart,
         getCart,
         addItemToCart,
-        // updateItemQuantity,
+        updateItemQuantity,
         // removeItemFromCart,
         // getTotalPrice,
       }}

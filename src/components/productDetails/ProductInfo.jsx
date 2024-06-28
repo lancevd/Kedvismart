@@ -8,12 +8,16 @@ import Link from "next/link";
 import Spinner from "../Spinner";
 
 const ProductInfo = ({ id, name, price, description, image }) => {
-  const { addItemToCart, getCart } = useCart();
+  const { addItemToCart, updateItemQuantity, getCart, cart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
   const [activeSize, setActiveSize] = useState("Medium");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log(cart);
+  }, [cart]);
 
   useEffect(() => {
     if (name) {
@@ -27,7 +31,17 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const handleAddToCart = () => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
-    addItemToCart(id, qty);
+      
+      const itemExists = cart.line_items.some((item) => item.id === id);
+
+      if (itemExists) {
+        console.log("Item exists in the cart.");
+        updateItemQuantity(qty);
+      } else {
+        console.log("Item does not exist in the cart.");
+        addItemToCart(id, qty);
+      }
+
     getCart();
     onOpenModal();
   };
@@ -35,6 +49,8 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   if (qty < 1) {
     setQty(1);
   }
+
+  
 
   return (
     <div>
