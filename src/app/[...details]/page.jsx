@@ -46,7 +46,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (products) {
-      console.log("THIS IS PRODUCT STATE DATA", products);
+      // console.log("THIS IS PRODUCT STATE DATA", products);
     }
   }, [products]);
 

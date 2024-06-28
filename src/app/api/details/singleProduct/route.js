@@ -6,7 +6,6 @@ import { getCookie } from "cookies-next";
 
 export async function GET(request) {
   const ID = getCookie("itemID", { req: request });
-  console.log(ID);
 
   if (!ID) {
     return NextResponse.json(
