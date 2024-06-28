@@ -27,22 +27,8 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const handleAddToCart = () => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
-    const newItem = {
-      id,
-      name,
-      image,
-      size: activeSize,
-      color: selectedColor,
-      price,
-      quantity: qty,
-      totalPrice: price * qty,
-    };
-
-    console.log("Adding item to cart:", newItem);
-    addItemToCart(newItem);
+    addItemToCart(id, qty);
     onOpenModal();
-    setQty(1);
-    setActiveColor(1);
   };
 
   if (qty < 1) {
