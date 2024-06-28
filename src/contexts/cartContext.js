@@ -26,8 +26,8 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const addItemToCart = async(productID, quantity, options) =>{
-    const response = await axios.post(`/api/cart/cartStatus`, {id: productID, quantity: quantity, options: options});
+  const getCart = async () => {
+    const response = await axios.get(`/api/cart/cartStatus`);
     if (response.status !== 200) {
       console.log("Error don happen o!");
     }
@@ -35,16 +35,32 @@ export const CartProvider = ({ children }) => {
     const result = await response.data;
     setCart(response.data);
     setCookie("cart_id", result);
-  }
+  };
+
+  const addItemToCart = async (productID, quantity, options) => {
+    const response = await axios.post(`/api/cart/cartStatus`, {
+      id: productID,
+      quantity: quantity,
+      options: options,
+    });
+    if (response.status !== 200) {
+      console.log("Error don happen o!");
+    }
+    console.log(response);
+    const result = await response.data;
+    setCart(response.data);
+    setCookie("cart_id", result);
+  };
 
   return (
     <CartContext.Provider
       value={{
         cart,
         initializeCart,
+        getCart,
         addItemToCart,
-        // removeItemFromCart,
         // updateItemQuantity,
+        // removeItemFromCart,
         // getTotalPrice,
       }}
     >

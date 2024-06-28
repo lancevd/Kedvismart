@@ -8,7 +8,7 @@ import Link from "next/link";
 import Spinner from "../Spinner";
 
 const ProductInfo = ({ id, name, price, description, image }) => {
-  const { addItemToCart } = useCart();
+  const { addItemToCart, getCart } = useCart();
   const [qty, setQty] = useState(1);
   const [activeColor, setActiveColor] = useState(1);
   const [activeSize, setActiveSize] = useState("Medium");
@@ -28,6 +28,7 @@ const ProductInfo = ({ id, name, price, description, image }) => {
     const selectedColor =
       activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
     addItemToCart(id, qty);
+    getCart();
     onOpenModal();
   };
 
