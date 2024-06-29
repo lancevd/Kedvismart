@@ -31,7 +31,7 @@ export const CartProvider = ({ children }) => {
     if (response.status !== 200) {
       console.log("Error don happen o!");
     }
-    console.log(response);
+    // console.log(response);
     const result = await response.data;
     setCart(response.data);
     setCookie("cart_id", result.id); ////////////////////////////////RESULT.ID?///////////////////////
@@ -70,6 +70,7 @@ export const CartProvider = ({ children }) => {
     }
     console.log(response);
     const result = await response.data;
+    getCart();
   };
 
   return (

@@ -13,41 +13,12 @@ const Page = () => {
   useEffect(() => {
     getCart();
     console.log(cart);
-  }, []);
+  }, [total]);
 
-  // const updateCartFromLocalStorage = () => {
-  //   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  //   setCart(cart);
-  // };
-
-  // useEffect(() => {
-  //   // Initial load
-  //   updateCartFromLocalStorage();
-
-  //   // Set up the event listener
-  //   const handleStorageChange = (event) => {
-  //     if (event.key === "cart") {
-  //       updateCartFromLocalStorage();
-  //     }
-  //   };
-
-  //   window.addEventListener("storage", handleStorageChange);
-
-  //   // Clean up the event listener
-  //   return () => {
-  //     window.removeEventListener("storage", handleStorageChange);
-  //   };
-  // }, [cart]);
-
-  // useEffect(() => {
-  //   // Calculate the subtotal
-  //   const subTotal = cart.reduce((acc, item) => acc + item.totalPrice, 0);
-  //   setSubTotal(subTotal);
-
-  //   // Calculate the total including delivery fee
-  //   const total = subTotal + deliveryPrice;
-  //   setTotal(total);
-  // }, [cart, deliveryPrice]);
+  useEffect(()=>{
+    setSubTotal(cart.subtotal.raw)
+    setTotal(cart.subtotal.raw + deliveryPrice)
+  })
 
   return (
     <main className="contain py-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
@@ -68,7 +39,7 @@ const Page = () => {
         <h4 className="mb-2">Order Summary</h4>
         <div className="flex justify-between items-center">
           <p className="text-[#0000006b]">Subtotal</p>
-          <p className="font-bold">&#8358;{subTotal}</p>
+          <p className="font-bold">&#8358;{cart.subtotal.raw}</p>
         </div>
         <div className="flex justify-between items-center">
           <p className="text-[#0000006b]">Delivery Fee</p>
@@ -79,7 +50,9 @@ const Page = () => {
         <br />
         <div className="flex justify-between items-center">
           <p className="">Total</p>
-          <p className="font-bold">&#8358;{total}</p>
+          <p className="font-bold">
+            &#8358;{total}
+          </p>
         </div>
         <br />
         <div className="flex gap-8 justify-between">
