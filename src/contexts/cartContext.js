@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { setCookie } from "cookies-next";
+import { setCookie, getCookie } from "cookies-next";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const CartContext = createContext();
@@ -51,19 +51,26 @@ export const CartProvider = ({ children }) => {
     // setCookie("cart_id", result.id);
   };
 
-  const updateItemQuantity = async (productID, quantity, options) => {
-    const response = await axios.put(`/api/cart/cartStatus`, {
-      id: productID,
-      quantity: quantity,
-      options: options,
-    });
+  const updateItemQuantity = async (productID, quantity) => {
+    const ID = getCookie("cart_id");
+    const response = await axios.put(
+      `https://api.chec.io/v1/carts/${ID}/items/${productID}`,
+      {
+        id: productID,
+        quantity: quantity,
+      },
+      {
+        headers: {
+          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+        },
+      }
+    );
     if (response.status !== 200) {
       console.log("Error don happen o!");
     }
     console.log(response);
     const result = await response.data;
-    setCart(response.data);
-    setCookie("cart_id", result);
+    setCart(result);
   };
 
   return (

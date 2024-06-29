@@ -6,13 +6,13 @@ import { TbMinus, TbPlus } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
 
 const CartItem = ({ item }) => {
-  const { removeItemFromCart, updateItemQuantity, cart } = useCart();
+  const { removeItemFromCart, updateItemQuantity } = useCart();
   const [qty, setQty] = useState(item.quantity);
   const [totalPrice, setTotalPrice] = useState(item.totalPrice);
 
   useEffect(() => {
-    setTotalPrice(item.price * qty);
-  }, [qty, item.price]);
+    setTotalPrice(item.price.raw * qty);
+  }, [qty, item.price.raw]);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -22,23 +22,23 @@ const CartItem = ({ item }) => {
   const handleBlur = () => {
     if (qty === "" || isNaN(qty) || qty < 1) {
       setQty(1);
-      updateItemQuantity(item.id, item.color, item.size, 1);
+      updateItemQuantity(item.id, 1);
     } else {
-      updateItemQuantity(item.id, item.color, item.size, qty);
+      updateItemQuantity(item.id, qty);
     }
   };
 
   const handleIncrement = () => {
     const newQty = qty + 1;
     setQty(newQty);
-    updateItemQuantity(item.id, item.color, item.size, newQty);
+    updateItemQuantity(item.id, newQty);
   };
 
   const handleDecrement = () => {
     if (qty > 1) {
       const newQty = qty - 1;
       setQty(newQty);
-      updateItemQuantity(item.id, item.color, item.size, newQty);
+      updateItemQuantity(item.id, newQty);
     }
   };
 
@@ -50,13 +50,11 @@ const CartItem = ({ item }) => {
         </div>
         <div className="flex flex-col justify-between">
           <p className="font-bold text-sm md:text-lg">{item.name}</p>
-          {/* <p className="text-xs">Size: {item.size}</p>
-          <p className="text-xs">Color: {item.color}</p> */}
           <p className="font-medium text-sm md:text-base">
             &#8358;<span>{item.price.raw}</span>
           </p>
           <p className="font-medium text-sm md:text-base">
-            Total: &#8358;<span>{item.price.raw * item.quantity}</span>
+            Total: &#8358;<span>{totalPrice}</span>
           </p>
         </div>
       </div>
@@ -84,6 +82,9 @@ const CartItem = ({ item }) => {
           </button>
         </div>
       </div>
+      <br />
+      <hr />
+      <br />
     </div>
   );
 };
