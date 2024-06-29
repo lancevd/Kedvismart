@@ -17,9 +17,12 @@ export async function PUT(request) {
   }
 
   try {
-    const response = await axios.post(
+    const response = await axios.put(
       `https://api.chec.io/v1/carts/${ID}/items/${itemID}`,
-      payload,
+      {
+        id: payload.id,
+        quantity: payload.quantity,
+      },
       {
         headers: {
           "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
@@ -27,14 +30,13 @@ export async function PUT(request) {
       }
     );
 
-    console.log(response);
+    // console.log(response);
     if (response.status !== 200) {
-      return NextResponse.json(error, { status: response.status });
+      return NextResponse.json(error, { status: "WE NO FIT GO AGAIN" });
     }
 
-    const data = response.data;
-
-    return NextResponse.json(data, { status: 200 });
+    const data = await response.data;
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error calling external API:", error);
     return NextResponse.json(

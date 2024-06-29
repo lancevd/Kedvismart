@@ -54,7 +54,7 @@ export const CartProvider = ({ children }) => {
   const updateItemQuantity = async (productID, quantity) => {
     const ID = getCookie("cart_id");
     const response = await axios.put(
-      `https://api.chec.io/v1/carts/${ID}/items/${productID}`,
+      `/api/cart/updateCart`,
       {
         id: productID,
         quantity: quantity,
@@ -70,7 +70,6 @@ export const CartProvider = ({ children }) => {
     }
     console.log(response);
     const result = await response.data;
-    setCart(result);
   };
 
   return (

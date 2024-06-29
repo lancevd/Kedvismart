@@ -43,7 +43,7 @@ const CartItem = ({ item }) => {
   };
 
   return (
-    <div className="flex justify-between gap-4">
+    <div className="flex justify-between gap-4 w-full">
       <div className="flex gap-4">
         <div className="rounded-lg w-[4rem] h-[4rem] md:w-[6rem] md:h-[6rem] items-baseline overflow-hidden">
           <img src={item.image.url} alt={item.name} className="w-full" />
@@ -81,10 +81,8 @@ const CartItem = ({ item }) => {
             <TbPlus />
           </button>
         </div>
+        
       </div>
-      <br />
-      <hr />
-      <br />
     </div>
   );
 };

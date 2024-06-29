@@ -56,7 +56,12 @@ const Page = () => {
           (cart.line_items.length < 1
             ? "There are no items in your cart. Add some items to your cart to see them here."
             : cart.line_items.map((item) => (
-                <CartItem key={item.id} item={item} />
+                <>
+                  <CartItem key={item.id} item={item} />
+                  <br />
+                  <hr />
+                  <br />
+                </>
               )))}
       </div>
       <div className="w-full lg:w-1/3 border p-4 rounded-xl">
