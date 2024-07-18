@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/contexts/cartContext";
 // import { QueryClientProvider, useQueryClient } from "react-query";
-import alanBtn from "@alan-ai/alan-sdk-web";
 
 const inter = Inter({ subsets: ["latin"] });
 
