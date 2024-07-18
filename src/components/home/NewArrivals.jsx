@@ -30,7 +30,7 @@ const NewArrivals = () => {
   }
 
   return (
-    <section className="w-full">
+    <section className="w-full" id="arrival">
       <div className="contain">
         <h2 className="font-bold text-center">New Arrivals</h2>
         <br />
