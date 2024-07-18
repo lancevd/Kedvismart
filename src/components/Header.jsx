@@ -14,6 +14,7 @@ const variants = {
 
 const Header = () => {
   const [showTopbar, setShowTopbar] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -26,7 +27,7 @@ const Header = () => {
         <div className="contain flex justify-between gap-4 text-center">
           <div className="hidden md:block"></div>
           <p className="text-sm">
-            Sign up and get 20% off your first order. Sign Up Now
+            Sign up and get 20% off to your first order. Sign Up Now
           </p>
           <div
             className="cursor-pointer text-lg"
@@ -36,51 +37,65 @@ const Header = () => {
           </div>
         </div>
       </div>
-      <motion.nav
-        animate={isOpen ? "open" : "closed"}
-        variants={variants}
-        className="contain flex flex-wrap gap-3 justify-between items-center border-b bg-white py-4"
-      >
-        <div className="flex justify-between items-center w-full lg:w-auto">
-          <Link href={"/"}>
-            <h1 className="font-bold text-lg">K.Mart</h1>
-          </Link>
+      <nav className="contain flex justify-between items-center border-b bg-white py-4 ">
+        <div className="flex items-center gap-3">
           <div
-            className="text-xl cursor-pointer lg:hidden"
-            onClick={() => setIsOpen(!isOpen)}
+            className="lg:hidden cursor-pointer text-xl"
+            onClick={() => setShowMenu(!showMenu)}
           >
-            {isOpen ? <TbX /> : <ImMenu />}
+            {showMenu ? <TbX /> : <ImMenu />}
           </div>
+          <Link onClick={() => setShowMenu(false)} href={"/"}>
+            <h1 className="font-bold">K.Mart</h1>
+          </Link>
         </div>
-        <menu
-          className={`flex-col lg:flex-row gap-3 items-center w-full lg:w-auto lg:flex ${
-            isOpen ? "flex" : "hidden"
-          }`}
+        <motion.div
+          animate={showMenu ? "open" : "closed"}
+          variants={variants}
+          className="flex flex-col lg:flex-row gap-3 absolute lg:static top-28 left-0 w-full lg:w-auto lg:h-auto bg-white lg:bg-transparent lg:opacity-100 p-4 lg:p-0 z-50"
         >
-          <Link href={"/shop"}> Shop </Link>
-          <Link href={"#"}> On Sale </Link>
-          <Link href={"#"}> New Arrivals </Link>
-          <Link href={"#"}> Brands </Link>
-          <div className="bg-[#f0f0f0] flex items-center gap-3 rounded-3xl p-3 w-full lg:w-auto">
+          <Link onClick={() => setShowMenu(false)} href={"/shop"}>
+            Shop
+          </Link>
+          <Link onClick={() => setShowMenu(false)} href={"#"}>
+            On Sale
+          </Link>
+          <Link onClick={() => setShowMenu(false)} href={"#"}>
+            New Arrivals
+          </Link>
+          <Link onClick={() => setShowMenu(false)} href={"#"}>
+            Brands
+          </Link>
+          <div className="lg:hidden bg-[#f0f0f0] flex items-center gap-3 rounded-3xl p-3 mt-4 lg:mt-0">
             <TbSearch />
-            <form action="" className="w-full">
+            <form action="">
               <input
                 type="text"
-                className="bg-transparent outline-none w-full"
+                className="bg-transparent outline-none"
                 placeholder="Search for products..."
               />
             </form>
           </div>
-        </menu>
+        </motion.div>
+        <div className="hidden lg:flex bg-[#f0f0f0] items-center gap-3 rounded-3xl p-3">
+          <TbSearch />
+          <form action="">
+            <input
+              type="text"
+              className="bg-transparent outline-none"
+              placeholder="Search for products..."
+            />
+          </form>
+        </div>
         <menu className="flex gap-3 items-center">
-          <Link href={"/cart"}>
+          <Link onClick={() => setShowMenu(false)} href={"/cart"}>
             <BsCart />
           </Link>
-          <Link href={"/account"}>
+          <Link onClick={() => setShowMenu(false)} href={"/account"}>
             <TbUserCircle />
           </Link>
         </menu>
-      </motion.nav>
+      </nav>
     </header>
   );
 };
