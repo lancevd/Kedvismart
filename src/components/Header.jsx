@@ -52,19 +52,16 @@ const Header = () => {
         <motion.div
           animate={showMenu ? "open" : "closed"}
           variants={variants}
-          className="flex flex-col lg:flex-row gap-3 absolute lg:static top-28 left-0 w-full lg:w-auto lg:h-auto bg-white lg:bg-transparent lg:opacity-100 p-4 lg:p-0 z-50"
+          className="flex flex-col lg:flex-row gap-3 absolute lg:static top-28 left-0 w-full lg:w-auto lg:h-auto bg-white lg:bg-transparent lg:!opacity-100 lg:!translate-x-0 p-4 lg:p-0 z-50"
         >
           <Link onClick={() => setShowMenu(false)} href={"/shop"}>
             Shop
           </Link>
-          <Link onClick={() => setShowMenu(false)} href={"#"}>
-            On Sale
-          </Link>
-          <Link onClick={() => setShowMenu(false)} href={"#"}>
+          <Link onClick={() => setShowMenu(false)} href={"/#arrival"}>
             New Arrivals
           </Link>
-          <Link onClick={() => setShowMenu(false)} href={"#"}>
-            Brands
+          <Link onClick={() => setShowMenu(false)} href={"/about"}>
+            How it works
           </Link>
           <div className="lg:hidden bg-[#f0f0f0] flex items-center gap-3 rounded-3xl p-3 mt-4 lg:mt-0">
             <TbSearch />
