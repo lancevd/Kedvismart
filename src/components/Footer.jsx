@@ -84,7 +84,7 @@ const Footer = () => {
       </div>
       <div className="contain flex flex-col lg:flex-row gap-3 md:justify-between items-center">
         <p>Kedvis Mart 2024 &copy;. All rights reserved.</p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <img src="/images/visa.png" alt="" />
           <img src="/images/mastercard.png" alt="" />
           <img src="/images/paypal.png" alt="" />
