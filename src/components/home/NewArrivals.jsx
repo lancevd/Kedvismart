@@ -18,14 +18,12 @@ const NewArrivals = () => {
 
     try {
       const response = await axios.get("api/home/newArrival");
-      console.log("THIS IS RESPONSE", response);
       const result = response.data.data;
       if (result && result.length > 4 ) {
         setCardData(result.slice(0, 4)); // Slice first 3 items
-        console.log("THIS IS CARD DATA", cardData);
       }
     } catch (error) {
-      console.log("THERE IS AN ERROR", error);
+      console.error( error);
     } finally {
       setLoading(false);
     }
