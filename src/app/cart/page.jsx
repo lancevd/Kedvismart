@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import CartItem from "./CartItem";
+import CartItem from "../../components/cart/CartItem";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { useCart } from "@/contexts/cartContext";
 
