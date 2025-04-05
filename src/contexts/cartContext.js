@@ -7,6 +7,8 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     initializeCart();
@@ -14,41 +16,66 @@ export const CartProvider = ({ children }) => {
 
   const initializeCart = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await axios.get(`/api/cart/initializeCart`);
-      if (response.status !== 200) {
-        console.log("Error don happen o!");
+      if (response.status === 200) {
+        const result = await response.data;
+        setCart(result);
+        setCookie("cart_id", result.id);
+      } else {
+        throw new Error("Failed to initialize cart");
       }
-      const result = await response.data;
-      setCart(result);
-      setCookie("cart_id", result.id);
     } catch (error) {
-      console.log(error);
+      setError(error.message || "Failed to initialize cart");
+      console.error("Cart initialization error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const getCart = async () => {
-    const response = await axios.get(`/api/cart/cartStatus`);
-    if (response.status !== 200) {
-      console.log("Error don happen o!");
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`/api/cart/cartStatus`);
+      if (response.status === 200) {
+        const result = await response.data;
+        setCart(result);
+        setCookie("cart_id", result.id);
+      } else {
+        throw new Error("Failed to fetch cart");
+      }
+    } catch (error) {
+      setError(error.message || "Failed to fetch cart");
+      console.error("Cart fetch error:", error);
+    } finally {
+      setLoading(false);
     }
-    // console.log(response);
-    const result = await response.data;
-    setCart(response.data);
-    setCookie("cart_id", result.id); ////////////////////////////////RESULT.ID?///////////////////////
   };
 
   const addItemToCart = async (productID, quantity) => {
-    const response = await axios.post(`/api/cart/cartStatus`, {
-      id: productID,
-      quantity: quantity,
-    });
-    if (response.status != 200) {
-      console.log("Error don happen o!");
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.post(`/api/cart/cartStatus`, {
+        id: productID,
+        quantity: quantity,
+      });
+      if (response.status === 200) {
+        const result = await response.data;
+        setCart(result);
+        return result;
+      } else {
+        throw new Error("Failed to add item to cart");
+      }
+    } catch (error) {
+      setError(error.message || "Failed to add item to cart");
+      console.error("Add to cart error:", error);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-    const result = await response.data;
-    console.log(result);
-    // setCart(response.data);
-    // setCookie("cart_id", result.id);
   };
 
   const updateItemQuantity = async (productID, quantity) => {
@@ -73,16 +100,20 @@ export const CartProvider = ({ children }) => {
     getCart();
   };
 
+  const removeItemFromCart = async (productID) => {
+    // Implementation needed
+  };
+
   return (
     <CartContext.Provider
       value={{
         cart,
-        initializeCart,
-        getCart,
+        error,
+        loading,
         addItemToCart,
+        getCart,
         updateItemQuantity,
-        // removeItemFromCart,
-        // getTotalPrice,
+        removeItemFromCart,
       }}
     >
       {children}
@@ -91,5 +122,9 @@ export const CartProvider = ({ children }) => {
 };
 
 export const useCart = () => {
-  return useContext(CartContext);
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
 };
