@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@alan-ai/alan-sdk-web": "^1.8.57",
+    "annyang": "^2.6.1",
     "axios": "^1.7.2",
     "cookies-next": "^4.2.1",
     "framer-motion": "^11.3.6",

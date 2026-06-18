@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import VoiceAssistant from "@/components/VoiceAssistant";
 import { CartProvider } from "@/contexts/cartContext";
 // import { QueryClientProvider, useQueryClient } from "react-query";
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
             <Header />
             {children}
             <Footer />
+            <VoiceAssistant />
           </CartProvider>
         {/* </QueryClientProvider> */}
       </body>
