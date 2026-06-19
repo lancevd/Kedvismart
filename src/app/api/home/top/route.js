@@ -8,7 +8,7 @@ export async function GET(request) {
       "https://api.chec.io/v1/products?sortBy=price&sortDirection=desc",
       {
         headers: {
-          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+          "X-Authorization": process.env.CHEC_API_KEY,
         },
       }
     );

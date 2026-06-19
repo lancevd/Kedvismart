@@ -25,17 +25,17 @@ export async function PUT(request) {
       },
       {
         headers: {
-          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+          "X-Authorization": process.env.CHEC_API_KEY,
         },
       }
     );
 
     // console.log(response);
     if (response.status !== 200) {
-      return NextResponse.json(error, { status: "WE NO FIT GO AGAIN" });
+      return NextResponse.json(        { message: `External API call failed with status: ${response.statusText}` },        { status: response.status }      );
     }
 
-    const data = await response.data;
+    const data = response.data;
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error calling external API:", error);

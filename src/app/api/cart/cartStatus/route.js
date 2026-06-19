@@ -10,7 +10,7 @@ export async function GET(request) {
   try {
     const response = await axios.get(`https://api.chec.io/v1/carts/${ID}`, {
       headers: {
-        "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+        "X-Authorization": process.env.CHEC_API_KEY,
       },
     });
 
@@ -55,14 +55,14 @@ export async function POST(request) {
       payload,
       {
         headers: {
-          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+          "X-Authorization": process.env.CHEC_API_KEY,
         },
       }
     );
 
     console.log(response);
     if (response.status !== 200) {
-      return NextResponse.json(error, { status: response.status });
+      return NextResponse.json(        { message: `Error. API response failed with status ${response.status}` },        { status: response.status }      );
     } else if (response.status === 200) {
       const data = response.data;
       // console.log(

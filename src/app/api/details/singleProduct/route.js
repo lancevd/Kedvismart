@@ -17,7 +17,7 @@ export async function GET(request) {
   try {
     const response = await axios.get(`https://api.chec.io/v1/products/${ID}`, {
       headers: {
-        "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
+        "X-Authorization": process.env.CHEC_API_KEY,
       },
     });
 

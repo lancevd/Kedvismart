@@ -6,7 +6,7 @@ A comprehensive guide to the codebase, architecture, features, and known issues 
 
 ## 1. Project Overview
 
-**Kedvis Mart** is a fashion e-commerce storefront built with **Next.js 14 (App Router)** and powered by **Commerce.js (Chec)** as a headless commerce backend. The project's distinguishing feature, advertised on its `/about` page, is **voice / conversational AI integration** powered by `@alan-ai/alan-sdk-web`, intended to allow commands like "search for wrist watch", "add to my cart", and "checkout my cart". That component currently exists only as a stub and is not wired into the running app.
+**Kedvis Mart** is a fashion e-commerce storefront built with **Next.js 14 (App Router)** and powered by **Commerce.js (Chec)** as a headless commerce backend. The project's distinguishing feature, advertised on its `/about` page, is **voice / conversational shopping** — users can speak commands like "search for jeans", "add to cart", "go to checkout", and "show new arrivals" via a floating mic button in the bottom-right corner. The voice layer is implemented with [`annyang`](https://github.com/TalAter/annyang/), a 2KB MIT-licensed wrapper around the browser's native `SpeechRecognition` API. No API keys, no cloud account, no per-usage fees.
 
 - **Author**: Olamide Mosobalaje
 - **Version**: 0.1.0
@@ -35,6 +35,7 @@ The repository's `README.md` is the unmodified `create-next-app` boilerplate and
 - `axios` for HTTP (imported in a few files but used lightly)
 - `cookies-next` for cookie read/write
 - `react-query` 3.39 — installed but not used (commented out in layout)
+- `sessionStorage` for voice-search handoff from the voice widget to the shop page
 - Local static JS arrays (`CardData.js`, `testimonialsData.js`, `ReviewsData.js`) used as mock data
 - External API: **Commerce.js** at `https://api.chec.io/v1/...`
 
@@ -44,6 +45,7 @@ The repository's `README.md` is the unmodified `create-next-app` boilerplate and
 - `react-icons` 5 (Tabler, Remix, Material, FontAwesome, Ionicons, Bootstrap sets)
 - `react-responsive-modal` — "added to cart" confirmation popup
 - `rc-slider` 10 — dual-handle price range slider in the shop filter
+- **`annyang` 2.6.1** — voice command grammar & SpeechRecognition wrapper
 
 ### Authentication
 - **None.** No auth library, no middleware, no `/account` route exists despite being referenced from the Header.
@@ -87,6 +89,7 @@ Path alias `@/*` -> `./src/*`.
 Kedvismart/
 ├── .env
 ├── .gitignore
+├── doc.md
 ├── jsconfig.json
 ├── next.config.mjs
 ├── package.json
@@ -119,7 +122,7 @@ Kedvismart/
     │           ├── newArrival/route.js
     │           └── top/route.js
     ├── components/
-    │   ├── AlanAI.js
+    │   ├── VoiceAssistant.jsx   <-- floating mic widget (replaces AlanAI)
     │   ├── CardData.js
     │   ├── Footer.jsx
     │   ├── Header.jsx
@@ -146,7 +149,7 @@ Kedvismart/
     │       ├── ColorsToggle.jsx
     │       ├── FilterBar.jsx
     │       ├── ProductCard.jsx
-    │       ├── Products.jsx
+    │       ├── Products.jsx       <-- now applies voice-search filter
     │       ├── SizesFilter.jsx
     │       ├── Toggle.jsx
     │       ├── colors/ColorCheck.jsx
@@ -158,6 +161,8 @@ Kedvismart/
         └── cartContext.js
 ```
 
+> **Note**: `src/components/AlanAI.js` has been **removed**. The Alan AI SDK is no longer a dependency.
+
 ---
 
 ## 5. Routes & Pages
@@ -165,7 +170,7 @@ Kedvismart/
 | Route | File | Notes |
 |---|---|---|
 | `/` | `src/app/page.js` | Server component; renders Hero, Partners, NewArrivals, TopSelling, Categories, Testimonials. |
-| `/shop` | `src/app/shop/page.jsx` | Client component; 2-column layout with FilterBar and Products list. |
+| `/shop` | `src/app/shop/page.jsx` | Client component; 2-column layout with FilterBar and Products list. Honors a voice-search term stashed in `sessionStorage`. |
 | `/about` | `src/app/about/page.jsx` | Server component; static copy describing the AI voice features. |
 | `/cart` | `src/app/cart/page.jsx` | Client; lists line items via `CartItem`, hardcoded delivery price 1500 NGN. |
 | `/details/[...details]` | `src/app/[...details]/page.jsx` | Catch-all client route; reads `?id=` from URL, stores in `itemID` cookie, fetches via `/api/details/singleProduct`. |
@@ -197,9 +202,10 @@ Cart state lives in `src/contexts/cartContext.js`:
 - `useCart()` exposes: `cart`, `error`, `loading`, `addItemToCart(id, qty)`, `getCart()`, `updateItemQuantity(id, qty)`, `removeItemFromCart(id)` (placeholder, empty body).
 - On mount, `initializeCart()` is called; the returned cart id is persisted in the `cart_id` cookie via `cookies-next`.
 
-Local component state is used throughout for UI concerns (modals, qty, selected size/color, mobile menu, active tab).
+Local component state is used throughout for UI concerns (modals, qty, selected size/color, mobile menu, active tab, voice transcript, voice error message).
 
 **Cookies in use**: `cart_id`, `itemID`.
+**sessionStorage in use**: `kedvis_voice_search` — written by the voice widget when a `search for *term` command is spoken, read & cleared by `src/components/shop/Products.jsx` on mount.
 
 ---
 
@@ -211,7 +217,7 @@ Local component state is used throughout for UI concerns (modals, qty, selected 
   - `@layer components` styles for `h1..h5` (sizes + color `#263238`) and `.space` (`h-6 lg:h-10`)
   - Removes number-input spinners in WebKit
 - Icons: `react-icons` (Tabler, Remix, Material, FontAwesome, Ionicons, Bootstrap)
-- Animations: `framer-motion` (mobile drawer in Header)
+- Animations: `framer-motion` (mobile drawer in Header); Tailwind `animate-ping` for the mic's "listening" ring
 - Carousels: `swiper` (Testimonials only)
 
 ---
@@ -220,7 +226,7 @@ Local component state is used throughout for UI concerns (modals, qty, selected 
 
 - **Commerce.js (Chec)** — products and carts.
 - **Local static data**:
-  - `src/components/CardData.js` — 4 clothing items used by `Products.jsx`.
+  - `src/components/CardData.js` — 4 clothing items used by `Products.jsx` (and now the voice-search filter).
   - `src/components/home/testimonialsData.js` — 4 testimonials.
   - `src/components/productDetails/ReviewsData.js` — 6 reviews.
 - **Images** in `/public/images/`:
@@ -235,12 +241,12 @@ Local component state is used throughout for UI concerns (modals, qty, selected 
 ## 10. Component Reference
 
 ### Layout-Level
-- **`src/app/layout.js`** — Root layout. Loads `Inter` via `next/font/google`, sets metadata (title "Kedvis Mart"), wraps children in `CartProvider`, renders `<Header />` + `{children}` + `<Footer />`.
+- **`src/app/layout.js`** — Root layout. Loads `Inter` via `next/font/google`, sets metadata (title "Kedvis Mart"), wraps children in `CartProvider`, renders `<Header />` + `{children}` + `<Footer />` + `<VoiceAssistant />`.
 - **`Header.jsx`** (`"use client"`) — Top promo bar (dismissible), nav with mobile hamburger (framer-motion), logo "K.Mart", links to `/shop`, `/#arrival`, `/about`, `/cart`, `/account`. Search inputs are visual only.
 - **`Footer.jsx`** — Newsletter block + 4 column footer (Company / Help / FAQ / Resources — all `href="#"` placeholders), brand social icons, payment icons, "Kedvis Mart 2024".
 - **`Newsletter.jsx`** — Email input + "Subscribe to Newsletter" button. Form has no submit handler.
 - **`Spinner.jsx`** — Tailwind spinner.
-- **`AlanAI.js`** — Stub component using `@alan-ai/alan-sdk-web`. Not imported anywhere.
+- **`VoiceAssistant.jsx`** — Floating mic button. See section **11. Voice Command Layer** for full details.
 
 ### Home (`src/components/home/`)
 - **`Hero.jsx`** — Full-height hero with `/images/Hero.png` background, headline, CTA to `/shop`, stats (200+ brands, 2000+ products, 30,000+ customers).
@@ -259,7 +265,7 @@ Local component state is used throughout for UI concerns (modals, qty, selected 
 - **`ColorCheck.jsx`** — Round color swatch with check on click.
 - **`SizesFilter.jsx`** — Size pills: `xx-large, x-large, large, medium, small, x-small, xx-small`. Single-select highlight.
 - **`ProductCard.jsx`** — Local-variant card linking to `/details/${info.name}`. Shows `info.image`, name, star rating, price via `info.price.toFixed(2)`.
-- **`Products.jsx`** — Renders static `cardData`. "Showing 1-10 of 100 Products" hardcoded.
+- **`Products.jsx`** (`"use client"`) — Renders the static `cardData` with a name+image substring filter. On mount, reads `kedvis_voice_search` from `sessionStorage` (set by the voice widget) and pre-fills the filter; displays a "Voice search: …" banner with a Clear button; shows an empty-state message if no products match.
 
 ### Product Details (`src/components/productDetails/`)
 - **`Gallery.jsx`** — 3-thumbnail + main image gallery.
@@ -274,38 +280,104 @@ Local component state is used throughout for UI concerns (modals, qty, selected 
 
 ---
 
-## 11. External Services / Integrations
+## 11. Voice Command Layer
+
+The voice UI is implemented as a single client component, `src/components/VoiceAssistant.jsx`, mounted once inside the root layout (inside `<CartProvider>` so the cart hook is reachable). It renders a fixed-position floating mic button in the bottom-right corner (`fixed bottom-6 right-6 z-50`) — the same UX shape as Alan AI's classic widget.
+
+### Library
+[`annyang`](https://github.com/TalAter/annyang/) 2.6.1 — 2KB, MIT, zero dependencies. Wraps the browser's native `SpeechRecognition` API. No API keys, no backend, no per-usage cost.
+
+### Lifecycle
+1. **Mount**: `useEffect` runs on the client. It feature-detects `window.SpeechRecognition || window.webkitSpeechRecognition`; if neither exists, the button renders as disabled with the "Not supported" badge (Firefox fallback).
+2. **Dynamic import**: `import("annyang")` keeps the library out of the SSR bundle.
+3. **Commands registered**: see grammar table below.
+4. **Cleanup**: on unmount, `annyang.abort()` is called to release the mic.
+
+### Visual states
+| State | Appearance |
+|---|---|
+| Idle (supported) | Black round button (`bg-black`), `TbMicrophone` icon, "Tap to speak" badge. |
+| Listening | Red button (`bg-red-500`), `TbMicrophoneFilled` icon, "Listening…" black pill badge, and a `animate-ping` ring around the button. |
+| Unavailable | Greyed-out button with `TbMicrophoneOff` icon and "Voice not supported in this browser" badge. |
+| Error | Red badge showing the last error ("Microphone access denied", "Network error", "I didn't hear anything", "Open a product first…", etc.). |
+| After a match | A small transcript chip below the button shows the most recent matched phrase in quotes. |
+
+### Voice command grammar
+Each entry is a phrase pattern (annyang supports `*term` splats, `:name` single-word captures, and `(optional)` words) and the JS callback it runs.
+
+| Phrase | Action |
+|---|---|
+| `go to shop` / `open shop` / `show shop` | `router.push('/shop')` |
+| `go to cart` / `open cart` / `show cart` / `view cart` | `router.push('/cart')` |
+| `go to checkout` / `checkout` / `check out` / `open checkout` | `router.push('/cart')` (no dedicated `/checkout` route yet) |
+| `go home` / `go to home` / `open home` / `take me home` | `router.push('/')` |
+| `show new arrivals` / `new arrivals` | `router.push('/#arrival')` |
+| `go to about` / `open about` | `router.push('/about')` |
+| `search for *term` / `search *term` / `find *term` / `look for *term` / `show me *term` | Writes `term` to `sessionStorage["kedvis_voice_search"]`, then `router.push('/shop')`. `Products.jsx` reads and clears the key on mount. |
+| `add to cart` / `add this to cart` | Reads `itemID` cookie (set by the product-details page), calls `addItemToCart(itemID, 1)` from `useCart()`. If no `itemID` is present, an error message is shown. |
+| `stop listening` / `go to sleep` | `annyang.abort()` |
+| `start listening` / `wake up` | `annyang.start()` |
+
+### Annyang callbacks wired
+- `result` — captures the raw transcript for the floating transcript chip.
+- `resultMatch` — captures the matched phrase and updates the "Heard: …" badge.
+- `errorNoSpeech` / `errorNetwork` / `errorPermissionBlocked` / `errorPermissionDenied` — translate browser speech-recognition errors into user-friendly red badges.
+- `start` / `end` — toggle the `listening` UI state.
+
+### Voice search handoff
+The shop page (`src/components/shop/Products.jsx`) is a client component that:
+1. On mount, reads `sessionStorage.getItem("kedvis_voice_search")`.
+2. If present, calls `setQuery(stashed)` and immediately removes the key.
+3. The filter `useMemo` matches the term against each product's `name` and `image` (substring, case-insensitive).
+4. A "Voice search: …" banner appears at the top of the products grid with a Clear button.
+5. If no products match, an empty state with a "Clear search" button is shown.
+
+### Browser support
+| Browser | Support |
+|---|---|
+| Chrome / Edge (Chromium) | Full — cloud-based recognition via Google. |
+| Safari (iOS 14.5+, macOS 11+) | Full — on-device recognition. |
+| Firefox | None — the widget shows as disabled. |
+| Other | None — graceful no-op. |
+
+Microphone access requires HTTPS (or `localhost`).
+
+---
+
+## 12. External Services / Integrations
 
 - **Commerce.js (Chec)** — products and carts behind a thin Next.js API layer.
-- **Alan AI** — `@alan-ai/alan-sdk-web` is a dependency and a stub component exists, but it is not wired in.
+- **`annyang`** — voice command grammar + SpeechRecognition wrapper, runs entirely in the browser. No third-party service.
 - **next/font (Google Fonts)** — `Inter` loaded via `next/font/google`.
 
 ---
 
-## 12. Known Issues / Bugs
+## 13. Known Issues / Bugs
 
-1. **`AlanAI` not wired up** — `AlanAI.js` exists with a placeholder key, not imported anywhere. The voice command feature is unimplemented.
-2. **`react-query` installed but unused** — `QueryClientProvider` is commented out in `layout.js`.
-3. **`initializeCart` uses wrong HTTP method** — Chec's `/carts` endpoint expects POST; the route uses GET, likely failing at runtime.
-4. **`ProductInfo` calls `updateItemQuantity(qty)`** — missing the `id` argument (signature is `(productID, quantity)`).
-5. **`removeItemFromCart` is an empty function** — delete button in cart is a no-op.
-6. **Two `ProductCard` variants with incompatible prop shapes**:
+1. **`react-query` installed but unused** — `QueryClientProvider` is commented out in `layout.js`.
+2. **`initializeCart` uses wrong HTTP method** — Chec's `/carts` endpoint expects POST; the route uses GET, likely failing at runtime.
+3. **`ProductInfo` calls `updateItemQuantity(qty)`** — missing the `id` argument (signature is `(productID, quantity)`).
+4. **`removeItemFromCart` is an empty function** — delete button in cart is a no-op.
+5. **Two `ProductCard` variants with incompatible prop shapes**:
    - `home/ProductCard.jsx` expects `info.permalink`, `info.image.url`, `info.price.formatted` (Commerce.js shape).
    - `shop/ProductCard.jsx` expects `info.name`, `info.image`, `info.price` (local mock shape).
-7. **No auth** — `/account` is linked in Header but the route doesn't exist; no user account functionality.
-8. **`Reviews.jsx` imports Swiper but uses a plain grid** — dead code.
-9. **Search inputs and footer links** — non-functional (`href="#"`, no submit handlers).
-10. **Hardcoded Naira formatting** (`&#8358;` and `₦`) — currency implied to be Nigerian Naira; delivery is hardcoded at 1500.
-11. **`react-query` v3** is a major version behind (TanStack Query v5 is the successor).
-12. **Image filenames contain spaces** (e.g. `black jeans.png`). They work via string references but are unconventional.
-13. **`punycode` listed as a direct dependency** — it's a Node built-in, likely added to silence a deprecation warning.
+6. **No auth** — `/account` is linked in Header but the route doesn't exist; no user account functionality.
+7. **`Reviews.jsx` imports Swiper but uses a plain grid** — dead code.
+8. **Search inputs and footer links** — non-functional (`href="#"`, no submit handlers).
+9. **Hardcoded Naira formatting** (`&#8358;` and `₦`) — currency implied to be Nigerian Naira; delivery is hardcoded at 1500.
+10. **`react-query` v3** is a major version behind (TanStack Query v5 is the successor).
+11. **Image filenames contain spaces** (e.g. `black jeans.png`). They work via string references but are unconventional.
+12. **`punycode` listed as a direct dependency** — it's a Node built-in, likely added to silence a deprecation warning.
+13. **Voice search filters local `cardData` only** — `Products.jsx` is driven by static mock data. Wiring the voice-search command to the live Chec API would require `Products.jsx` to fetch from `/api/home/newArrival` first. This is a deliberate scope cut, not a bug.
 
 ---
 
-## 13. Summary
+## 14. Summary
 
 Kedvis Mart is a **Next.js 14 App Router** fashion storefront scaffolded by `create-next-app` and adapted for commerce. It uses **Commerce.js** as a backend (products, carts) behind a thin layer of Next.js API routes that proxy the Chec API, a **React Context** cart store with cookie persistence, **Tailwind CSS** for styling, and **framer-motion + swiper + react-icons + react-responsive-modal + rc-slider** for UI polish.
 
-The site covers the standard e-commerce surface: a home page (hero, partner brands, new arrivals, top-selling, categories, testimonials), a shop with filters (category accordion, price slider, color swatches, size pills), a product details page (gallery, info, tabs, related products, reviews), a cart page, and an about page. The voice-driven AI commerce experience marketed in `/about` is presently only a stub component.
+The site covers the standard e-commerce surface: a home page (hero, partner brands, new arrivals, top-selling, categories, testimonials), a shop with filters (category accordion, price slider, color swatches, size pills) **and a voice-search filter**, a product details page (gallery, info, tabs, related products, reviews), a cart page, and an about page.
 
-The code contains several obvious bugs (wrong HTTP method on cart init, missing arg in `updateItemQuantity`, empty `removeItemFromCart`, two incompatible `ProductCard` shapes, no auth route, dead Swiper import) that are good candidates for a follow-up cleanup pass.
+The voice-driven AI commerce experience marketed in `/about` is now fully functional via `src/components/VoiceAssistant.jsx`, a free, browser-native replacement for the previously-stubbed Alan AI integration. Users can navigate, search the catalog, add the currently-viewed product to their cart, and control the mic itself, all by voice.
+
+The code contains several known pre-existing bugs (wrong HTTP method on cart init, missing arg in `updateItemQuantity`, empty `removeItemFromCart`, two incompatible `ProductCard` shapes, no auth route, dead Swiper import) that are good candidates for a follow-up cleanup pass.
