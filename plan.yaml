@@ -1,7 +1,7 @@
 
 # Kedvis Mart Revamp Plan
 phases:
-  - name: Phase 0 – Preparation & Environment Setup
+  - name: Phase 0 ï¿½ Preparation & Environment Setup
     description: Verify environment, install packages, create utilities, branch.
     tasks:
       - id: 0.1
@@ -13,10 +13,7 @@ phases:
       - id: 0.3
         description: Create utility files: src/lib/db.js, src/lib/cloudinary.js, src/lib/auth.js
         status: pending
-      - id: 0.4
-        description: Create git branch feature/mongodb-cloudinary-auth
-        status: pending
-  - name: Phase 1 – Data Models & Database Seeding
+  - name: Phase 1 ï¿½ Data Models & Database Seeding
     description: Define Mongoose schemas, seed script, run seeding, test connection.
     tasks:
       - id: 1.1
@@ -31,7 +28,7 @@ phases:
       - id: 1.4
         description: Create test API route /api/test-db to verify DB connection
         status: pending
-  - name: Phase 2 – Admin Dashboard (Product & Category Management)
+  - name: Phase 2 ï¿½ Admin Dashboard (Product & Category Management)
     description: Build protected admin UI with CRUD for products and categories, image upload via Cloudinary.
     tasks:
       - id: 2.1
@@ -58,7 +55,7 @@ phases:
       - id: 2.8
         description: Cloudinary upload route (src/app/api/cloudinary-upload/route.js) handling multipart/form-data, storing in folder kedvismart
         status: pending
-  - name: Phase 3 – Public Shop & Product Details (Using MongoDB)
+  - name: Phase 3 ï¿½ Public Shop & Product Details (Using MongoDB)
     description: Replace static data with API calls, implement voice search redirect, filtering, product detail page.
     tasks:
       - id: 3.1
@@ -79,7 +76,7 @@ phases:
       - id: 3.6
         description: Implement cart API basics: GET /api/cart, POST /api/cart/items, PUT /api/cart/items/[itemId], DELETE /api/cart/items/[itemId]
         status: pending
-  - name: Phase 4 – Authentication & Persistent Cart
+  - name: Phase 4 ï¿½ Authentication & Persistent Cart
     description: Add user login/registration via NextAuth, tie cart to user, merge guest cart on login.
     tasks:
       - id: 4.1
@@ -97,7 +94,7 @@ phases:
       - id: 4.5
         description: Profile page src/app/profile/page.js showing user info and order history (placeholder)
         status: pending
-  - name: Phase 5 – Voice Search Refinement & UX Polish
+  - name: Phase 5 ï¿½ Voice Search Refinement & UX Polish
     description: Expand voice grammar, add feedback, accessibility, optional caching.
     tasks:
       - id: 5.1
@@ -112,7 +109,7 @@ phases:
       - id: 5.4
         description: Optional: integrate swr or react-query for caching product lists
         status: pending
-  - name: Phase 6 – Testing, Deployment & Documentation
+  - name: Phase 6 ï¿½ Testing, Deployment & Documentation
     description: Write tests, error handling, deploy, update docs.
     tasks:
       - id: 6.1
