@@ -1,13 +1,13 @@
 
-const bcrypt = require('bcryptjs');
-const { MongoClient } = require('mongodb');
+import bcrypt from 'bcryptjs';
+import { MongoClient } from 'mongodb';
 
 /**
  * NextAuth configuration
  * This file exports the options object for NextAuth.
  * In Next.js 13+ app router, you can use this in route handlers.
  */
-module.exports = {
+export default {
   providers: [
     {
       id: 'credentials',

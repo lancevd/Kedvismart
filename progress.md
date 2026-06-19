@@ -1,1 +1,63 @@
-# Kedvis Mart Revamp Progress Tracker\n\n## Phases Status\n\n| Phase | Description | Status |\n|-------|-------------|--------|\n| Phase 0 – Preparation & Environment Setup | Verify environment, install packages, create utilities, branch. | Completed |\n| Phase 1 – Data Models & Database Seeding | Define Mongoose schemas, seed script, run seeding, test connection. | Not Started |\n| Phase 2 – Admin Dashboard (Product & Category Management) | Build protected admin UI with CRUD for products and categories, image upload via Cloudinary. | Not Started |\n| Phase 3 – Public Shop & Product Details (Using MongoDB) | Replace static data with API calls, implement voice search redirect, filtering, product detail page. | Not Started |\n| Phase 4 – Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Not Started |\n| Phase 5 – Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Not Started |\n| Phase 6 – Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | Not Started |\n\n## Notes\n- Update the status column as each phase's tasks are completed.\n- After completing a phase, change its status to Completed.\n
+# Kedvis Mart Revamp Progress Tracker
+
+## Phases Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 0 ï¿½ Preparation & Environment Setup | Verify environment, install packages, create utilities, branch. | Completed |
+| Phase 1 ï¿½ Data Models & Database Seeding | Define Mongoose schemas, seed script, run seeding, test connection. | Completed (see notes) |
+| Phase 2 ï¿½ Admin Dashboard (Product & Category Management) | Build protected admin UI with CRUD for products and categories, image upload via Cloudinary. | Completed (see notes) |
+| Phase 3 ï¿½ Public Shop & Product Details (Using MongoDB) | Replace static data with API calls, implement voice search redirect, filtering, product detail page. | Not Started |
+| Phase 4 ï¿½ Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Not Started |
+| Phase 5 ï¿½ Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Not Started |
+| Phase 6 ï¿½ Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | Not Started |
+
+## Notes
+
+### Phase 0
+- Verified .env contains required variables: MONGO_URI, Cloudinary keys, added NEXTAUTH_SECRET and NEXTAUTH_URL.
+- Installed required npm packages: mongodb, mongoose, cloudinary, next-auth, bcryptjs, and dev types @types/mongoose, @types/bcryptjs.
+- Created utility files: src/lib/db.js (MongoDB connection), src/lib/cloudinary.js (Cloudinary config), src/lib/auth.js (NextAuth options).
+- Created git branch feature/mongodb-cloudinary-auth.
+
+### Phase 1
+- Created Mongoose schemas for Category, Product, User, Cart in src/models/ as ES6 modules.
+- Created seeding script scripts/seed.js as ES6 module with dotenv import.
+- Created test API route at /api/test-db as ES6 module.
+- Attempted to run seeding script but MongoDB connection failed due to DNS resolution error (querySrv ESERVFAIL).
+- The environment may have network restrictions preventing access to the MongoDB Atlas cluster.
+- Models and seed script are ready; seeding can be executed once a reachable MongoDB instance is available.
+- Next step: once connectivity is resolved, run the seeder and verify the test route.
+
+### Phase 2
+- Created admin layout (src/app/admin/layout.jsx) protecting routes via NextAuth session and role check.
+- Created admin dashboard (src/app/admin/page.jsx) with stats placeholders.
+- Created products CRUD UI:
+  - List page (src/app/admin/products/page.jsx) with table, add/edit/delete actions.
+  - Add page (src/app/admin/products/add/page.jsx) with react-hook-form, zod validation, image URL input.
+  - Edit page (src/app/admin/products/edit/[id].jsx) similar to add with pre-population.
+- Created categories CRUD UI:
+  - List page (src/app/admin/categories/page.jsx) with table, add/edit/delete.
+  - Add page (src/app/admin/categories/add/page.jsx) with simple form and optional image upload via Cloudinary.
+  - Edit page (src/app/admin/categories/edit/[id].jsx) similar to add.
+- Created API routes for products and categories:
+  - src/app/api/products/route.js (GET, POST) with filtering, search, price range.
+  - src/app/api/products/[id].js (GET, PUT, DELETE).
+  - src/app/api/categories/route.js (GET, POST).
+  - src/app/api/categories/[id].js (GET, PUT, DELETE).
+- Created Cloudinary upload route (src/app/api/cloudinary-upload/route.js) using request.formData() and cloudinary.uploader.upload_stream.
+- Created authentication pages:
+  - Login page (src/app/admin/login/page.jsx) using credentials provider.
+  - Auth error page (src/app/auth/error/page.jsx).
+- Protected admin routes via layout; login redirect configured in NextAuth options.
+- All files written as ES6 modules (import/export).
+- PostCSS and Tailwind config renamed to .cjs to avoid ES module errors.
+
+### Additional Notes (ES Module Configuration)
+- Renamed postcss.config.js to postcss.config.cjs and tailwind.config.js to tailwind.config.cjs to avoid ES module errors because the project's package.json has "type": "module".
+- This ensures that Next.js can load these configuration files via CommonJS require.
+
+## Pending Items
+- Implement registration page and user-specific cart persistence (Phase?4).
+- Implement public shop and product details using the new API (Phase?3).
+- Enhance voice search integration with the new API (Phase?5).
