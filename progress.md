@@ -8,9 +8,9 @@
 | Phase 1  Data Models & Database Seeding | Define Mongoose schemas, seed script, run seeding, test connection. | Completed (see notes) |
 | Phase 2  Admin Dashboard (Product & Category Management) | Build protected admin UI with CRUD for products and categories, image upload via Cloudinary. | Completed (see notes) |
 | Phase 3  Public Shop & Product Details (Using MongoDB) | Replace static data with API calls, implement voice search redirect, filtering, product detail page. | Completed |
-| Phase 4  Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Not Started |
-| Phase 5  Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Not Started |
-| Phase 6  Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | Not Started |
+| Phase 4  Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Completed |
+| Phase 5  Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Completed |
+| Phase 6  Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | In Progress |
 
 ## Notes
 
@@ -67,9 +67,26 @@
 - Implemented a complete MongoDB-backed Cart API (`/api/cart` and `/api/cart/items/[itemId]`).
 - Updated `cartContext.js` to use these new RESTful routes, replacing the previous Commerce.js integration.
 
-## Pending Items
-- Implement user registration page and refine Phase 4 auth features.
-- Merge guest cart with user cart upon login (Phase 4).
-- Enhance voice search integration with more robust grammar and feedback (Phase 5).
+
+### Phase 4
+- Configured NextAuth with Credentials provider using the Mongoose `User` model.
+- Created registration flow at `/register` and login flow at `/login`.
+- Implemented `middleware.js` to protect `/admin` and `/account` routes with role-based access control.
+- Created the User Account page (`/account`) for profile management.
+- Implemented cart merging logic in `lib/auth.js`: guest carts are now automatically merged into the user account upon login.
+
+### Phase 5
+- Extended Voice Assistant grammar to support price sorting (e.g., "sort by price low to high").
+- Added category filtering support (e.g., "show me casual").
+- Implemented global product searching and adding to cart (e.g., "add [product] to cart").
+- Enhanced visual feedback with a status pill and temporary confirmed-action messages.
+- Redesigned the Admin Dashboard with a professional theme (Phase 5 bonus).
+
+## Verification Completed
+- [x] Shop filtering & product views
+- [x] Admin Dashboard & CRUD operations
+- [x] Registration & Login flows
+- [x] Cart persistence (Guest to User)
+- [x] Voice Assistant refined commands
 
 

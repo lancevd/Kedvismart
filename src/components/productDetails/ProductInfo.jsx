@@ -28,22 +28,18 @@ const ProductInfo = ({ id, name, price, description, image }) => {
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
 
-  const handleAddToCart = () => {
-    const selectedColor =
-      activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
+  const handleAddToCart = async () => {
+    try {
+      const selectedColor =
+        activeColor === 1 ? "Blue" : activeColor === 2 ? "Green" : "Red";
 
-    const itemExists = cart.line_items.some((item) => item.id === id);
-
-    if (itemExists) {
-      console.log("Item exists in the cart.");
-      updateItemQuantity(qty);
-    } else {
-      console.log("Item does not exist in the cart.");
-      addItemToCart(id, qty);
+      // The backend now handles merging/incrementing if item exists.
+      await addItemToCart(id, qty, selectedColor, activeSize);
+      
+      onOpenModal();
+    } catch (err) {
+      console.error("Failed to add to cart:", err);
     }
-
-    getCart();
-    onOpenModal();
   };
 
   if (qty < 1) {

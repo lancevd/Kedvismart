@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
-import { TbMicrophone, TbMicrophoneFilled, TbMicrophoneOff } from "react-icons/tb";
+import { TbMicrophone, TbMicrophoneOff } from "react-icons/tb";
 import { useCart } from "@/contexts/cartContext";
 
 // Voice command grammar (annyang):
@@ -19,41 +19,53 @@ const VoiceAssistant = () => {
   const { addItemToCart } = useCart();
   const annyangRef = useRef(null);
 
+  const [initializing, setInitializing] = useState(true);
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [lastCommand, setLastCommand] = useState("");
   const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+
+  // Clear status message after 3 seconds
+  useEffect(() => {
+    if (statusMessage) {
+      const timer = setTimeout(() => setStatusMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage]);
+
 
   // Stash a search term for the Shop page to read on mount.
   const stashSearchTerm = (term) => {
     try {
       sessionStorage.setItem("kedvis_voice_search", term);
-    } catch (_) {
-      // sessionStorage may be unavailable in private mode; fail silently.
-    }
+    } catch (_) { }
   };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Feature-detect the underlying SpeechRecognition API.
+    console.log("🎤 Voice Assistant: Initializing...");
+
     const hasRecognition =
       typeof window.SpeechRecognition !== "undefined" ||
       typeof window.webkitSpeechRecognition !== "undefined";
 
     if (!hasRecognition) {
+      console.warn("🎤 Voice Assistant: Speech recognition not supported in this browser.");
       setSupported(false);
+      setInitializing(false);
       return;
     }
 
-    // Dynamic import keeps annyang out of the server bundle and lets us
-    // gracefully no-op when SpeechRecognition is unavailable.
     let cancelled = false;
     import("annyang")
       .then(({ default: annyang }) => {
         if (cancelled) return;
+        console.log("🎤 Voice Assistant: Annyang loaded successfully.");
         annyangRef.current = annyang;
+        setInitializing(false);
 
         const goTo = (path) => () => router.push(path);
 
@@ -106,6 +118,28 @@ const VoiceAssistant = () => {
             router.push("/shop");
           },
 
+          // --- Sorting ---
+          "sort by price low to high": () => {
+            router.push("/shop?sort=price-asc");
+          },
+          "sort by price high to low": () => {
+            router.push("/shop?sort=price-desc");
+          },
+          "sort by newest": () => {
+            router.push("/shop?sort=newest");
+          },
+
+          // --- Category Filtering ---
+          "show me *category": (category) => {
+            // Clean up the category name (e.g. "men's clothing")
+            const slug = category.toLowerCase().trim().replace(/\s+/g, '-');
+            router.push(`/shop?category=${slug}`);
+          },
+          "view *category": (category) => {
+            const slug = category.toLowerCase().trim().replace(/\s+/g, '-');
+            router.push(`/shop?category=${slug}`);
+          },
+
           // --- Cart actions ---
           "add to cart": () => {
             const productID = getCookie("itemID");
@@ -113,9 +147,11 @@ const VoiceAssistant = () => {
               setError("Open a product first, then say \"add to cart\".");
               return;
             }
-            addItemToCart(productID, 1).catch((err) => {
-              setError(err?.message || "Could not add to cart.");
-            });
+            addItemToCart(productID, 1)
+              .then(() => setStatusMessage("Added to cart!"))
+              .catch((err) => {
+                setError(err?.message || "Could not add to cart.");
+              });
           },
           "add this to cart": () => {
             const productID = getCookie("itemID");
@@ -123,9 +159,27 @@ const VoiceAssistant = () => {
               setError("Open a product first, then say \"add to cart\".");
               return;
             }
-            addItemToCart(productID, 1).catch((err) => {
-              setError(err?.message || "Could not add to cart.");
-            });
+            addItemToCart(productID, 1)
+              .then(() => setStatusMessage("Added to cart!"))
+              .catch((err) => {
+                setError(err?.message || "Could not add to cart.");
+              });
+          },
+          "add *product to cart": async (productName) => {
+            try {
+              setStatusMessage(`Searching for ${productName}...`);
+              const res = await fetch(`/api/products?search=${encodeURIComponent(productName)}`);
+              const products = await res.json();
+              if (products && products.length > 0) {
+                const product = products[0];
+                await addItemToCart(product._id, 1);
+                setStatusMessage(`Added ${product.name} to cart!`);
+              } else {
+                setError(`Could not find "${productName}".`);
+              }
+            } catch (err) {
+              setError("Failed to add item.");
+            }
           },
 
           // --- Mic control ---
@@ -190,43 +244,51 @@ const VoiceAssistant = () => {
     }
   };
 
-  const status = !supported
-    ? "Voice not supported in this browser"
+  const status = initializing
+    ? "Initializing voice..."
+    : !supported
+    ? "Voice not supported"
     : listening
-    ? "Listening..."
+    ? "Listening (Tap to stop)"
+    : statusMessage
+    ? statusMessage
     : lastCommand
     ? `Heard: "${lastCommand}"`
     : "Tap to speak";
 
+
   const StatusDot = () => {
+    if (initializing) return <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>;
     if (!supported) return <TbMicrophoneOff size={14} />;
-    return listening ? <TbMicrophoneFilled size={14} /> : <TbMicrophone size={14} />;
+    return listening ? <TbMicrophone size={14} className="text-red-500 animate-pulse" /> : <TbMicrophone size={14} />;
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2">
       {/* Status / transcript pill */}
       <div
-        className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium shadow-lg transition-colors ${
-          !supported
-            ? "bg-gray-200 text-gray-700"
+        className={`flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-bold shadow-2xl transition-all duration-300 border ${
+          initializing
+            ? "bg-yellow-50 text-yellow-700 border-yellow-100"
+            : !supported
+            ? "bg-gray-100 text-gray-500 border-gray-200"
             : listening
-            ? "bg-black text-white"
+            ? "bg-red-50 text-red-600 border-red-100 scale-105"
             : error
-            ? "bg-red-500 text-white"
-            : "bg-white text-black border border-gray-200"
+            ? "bg-red-600 text-white border-transparent"
+            : "bg-white text-black border-gray-100"
         }`}
         role="status"
         aria-live="polite"
       >
         <StatusDot />
-        <span className="max-w-[12rem] truncate">{error || status}</span>
+        <span className="max-w-[14rem] truncate">{error || status}</span>
       </div>
 
       {/* Pulsing ring (only while listening) */}
       {listening && (
-        <span className="relative inline-flex h-14 w-14 -mb-14">
-          <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-black opacity-30" />
+        <span className="relative inline-flex h-14 w-14 -mb-14 pointer-events-none">
+          <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-40" />
         </span>
       )}
 
@@ -234,31 +296,29 @@ const VoiceAssistant = () => {
       <button
         type="button"
         onClick={toggleListening}
-        disabled={!supported}
+        disabled={!supported || initializing}
         aria-label={listening ? "Stop voice commands" : "Start voice commands"}
-        title={
-          !supported
-            ? "Voice commands require Chrome, Edge, or Safari"
+        className={`relative inline-flex h-16 w-16 items-center justify-center rounded-full shadow-2xl transition-all duration-300 active:scale-90 ${
+          initializing
+            ? "bg-gray-100 text-gray-400 cursor-wait"
+            : !supported
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
             : listening
-            ? "Tap to stop listening"
-            : "Tap to speak"
-        }
-        className={`relative inline-flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-transform ${
-          !supported
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : listening
-            ? "bg-red-500 text-white scale-110"
-            : "bg-black text-white hover:scale-105 active:scale-95"
+            ? "bg-red-500 text-white rotate-12"
+            : "bg-black text-white hover:bg-gray-800 hover:scale-110"
         }`}
       >
-        {listening ? (
-          <TbMicrophoneFilled size={26} />
+        {initializing ? (
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600"></div>
+        ) : listening ? (
+          <TbMicrophone size={32} />
         ) : supported ? (
-          <TbMicrophone size={26} />
+          <TbMicrophone size={32} />
         ) : (
-          <TbMicrophoneOff size={26} />
+          <TbMicrophoneOff size={32} />
         )}
       </button>
+
 
       {/* Latest transcript (visible only after first command) */}
       {transcript && !error && (

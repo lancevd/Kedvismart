@@ -1,36 +1,33 @@
-import { NextResponse } from "next/server";
-import axios from "axios";
+import mongoose from 'mongoose';
+import { NextResponse } from 'next/server';
+import Product from '@/models/Product';
 
-export async function GET(request) {
+async function connectDB() {
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MONGO_URI);
+  }
+}
+
+export async function GET() {
   try {
-    // Call the external endpoint
-    const response = await axios.get(
-      "https://api.chec.io/v1/products?sortBy=price&sortDirection=desc",
-      {
-        headers: {
-          "X-Authorization": process.env.CHEC_API_KEY,
-        },
+    await connectDB();
+    
+    // Sort by price descending for "Top Selling" (placeholder logic)
+    const products = await Product.find().sort({ price: -1 }).limit(8);
+
+    const transformedData = products.map(p => ({
+      id: p._id,
+      name: p.name,
+      permalink: p.slug,
+      price: { formatted: p.price.toLocaleString() },
+      image: { 
+        url: p.images?.[0]?.url || (typeof p.images?.[0] === 'string' ? p.images[0] : "") 
       }
-    );
+    }));
 
-    // Check if the response status is not in the 2xx range
-    if (response.status != 200 ) {
-      return NextResponse.json(
-        {
-          message: `External API call failed with status: ${response.statusText}`,
-        },
-        { status: response.status }
-      );
-    }
-
-    const data = response.data;
-
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json({ data: transformedData }, { status: 200 });
   } catch (error) {
-    console.error("Error calling external API:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    console.error("Error fetching top products:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
