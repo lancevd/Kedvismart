@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import Cart from '@/models/Cart';
+import { getServerSession } from 'next-auth';
+import authOptions from '@/lib/auth';
 
 async function connectDB() {
   if (mongoose.connection.readyState !== 1) {
@@ -12,11 +14,16 @@ async function connectDB() {
 export async function GET() {
   try {
     await connectDB();
-    const cartId = cookies().get('cart_id')?.value;
-    if (!cartId) {
-      return NextResponse.json({ items: [], totalPrice: 0 });
+    const session = await getServerSession(authOptions);
+    const sessionId = cookies().get('cart_id')?.value;
+
+    let cart;
+    if (session) {
+      cart = await Cart.findOne({ userId: session.user.id }).populate('items.productId');
+    } else if (sessionId) {
+      cart = await Cart.findOne({ sessionId }).populate('items.productId');
     }
-    const cart = await Cart.findOne({ cartId }).populate('items.product');
+
     if (!cart) {
       return NextResponse.json({ items: [], totalPrice: 0 });
     }
@@ -30,34 +37,39 @@ export async function GET() {
 export async function POST(request) {
   try {
     await connectDB();
-    const { productId, quantity, color, size } = await request.json();
-    let cartId = cookies().get('cart_id')?.value;
+    const { productId, quantity } = await request.json();
+    const session = await getServerSession(authOptions);
+    let sessionId = cookies().get('cart_id')?.value;
 
     let cart;
-    if (cartId) {
-      cart = await Cart.findOne({ cartId });
+    if (session) {
+      cart = await Cart.findOne({ userId: session.user.id });
+    } else if (sessionId) {
+      cart = await Cart.findOne({ sessionId });
     }
 
     if (!cart) {
-      cartId = Math.random().toString(36).substring(7);
-      cart = new Cart({ cartId, items: [] });
-      cookies().set('cart_id', cartId, { maxAge: 60 * 60 * 24 * 7 }); // 1 week
+      if (!session) {
+        sessionId = sessionId || Math.random().toString(36).substring(7);
+        cookies().set('cart_id', sessionId, { maxAge: 60 * 60 * 24 * 7 });
+      }
+      cart = new Cart({
+        userId: session?.user.id,
+        sessionId: session ? undefined : sessionId,
+        items: []
+      });
     }
 
-    const itemIndex = cart.items.findIndex(item => 
-      item.product.toString() === productId && 
-      item.color === color && 
-      item.size === size
-    );
+    const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
 
     if (itemIndex > -1) {
-      cart.items[itemIndex].quantity += quantity;
+      cart.items[itemIndex].quantity += (quantity || 1);
     } else {
-      cart.items.push({ product: productId, quantity, color, size });
+      cart.items.push({ productId, quantity: (quantity || 1) });
     }
 
     await cart.save();
-    const updatedCart = await Cart.findOne({ cartId }).populate('items.product');
+    const updatedCart = await cart.populate('items.productId');
     return NextResponse.json(updatedCart);
   } catch (error) {
     console.error('Error adding to cart:', error);

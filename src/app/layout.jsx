@@ -15,20 +15,15 @@ export const metadata = {
   favicon: "/kedvis.ico",
 };
 
-// const queryClient = new useQueryClient();
+import { Providers } from "@/components/Providers";
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="">
-        {/* <QueryClientProvider client={queryClient}> */}
-          <CartProvider>
-            <Header />
-            {children}
-            <Footer />
-            <VoiceAssistant />
-          </CartProvider>
-        {/* </QueryClientProvider> */}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import Cart from '@/models/Cart';
+import { getServerSession } from 'next-auth';
+import authOptions from '@/lib/auth';
 
 async function connectDB() {
   if (mongoose.connection.readyState !== 1) {
@@ -14,18 +16,24 @@ export async function PUT(request, { params }) {
     await connectDB();
     const { itemId } = params;
     const { quantity } = await request.json();
-    const cartId = cookies().get('cart_id')?.value;
+    const session = await getServerSession(authOptions);
+    const sessionId = cookies().get('cart_id')?.value;
 
-    if (!cartId) {
-      return NextResponse.json({ message: 'Cart not found' }, { status: 404 });
+    let cart;
+    if (session) {
+      cart = await Cart.findOne({ userId: session.user.id });
+    } else if (sessionId) {
+      cart = await Cart.findOne({ sessionId });
     }
 
-    const cart = await Cart.findOne({ cartId });
     if (!cart) {
       return NextResponse.json({ message: 'Cart not found' }, { status: 404 });
     }
 
-    const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
+    // Since items are an array, we find by sub-document _id (automatically added by Mongoose in items array)
+    // Or if I used _id: false in the schema, I should find by productId.
+    // Wait, in src/models/Cart.js I used _id: false for items. I should find by productId.
+    const itemIndex = cart.items.findIndex(item => item.productId.toString() === itemId);
     if (itemIndex === -1) {
       return NextResponse.json({ message: 'Item not found in cart' }, { status: 404 });
     }
@@ -33,7 +41,7 @@ export async function PUT(request, { params }) {
     cart.items[itemIndex].quantity = quantity;
     await cart.save();
     
-    const updatedCart = await Cart.findOne({ cartId }).populate('items.product');
+    const updatedCart = await cart.populate('items.productId');
     return NextResponse.json(updatedCart);
   } catch (error) {
     console.error('Error updating cart item:', error);
@@ -45,21 +53,24 @@ export async function DELETE(request, { params }) {
   try {
     await connectDB();
     const { itemId } = params;
-    const cartId = cookies().get('cart_id')?.value;
+    const session = await getServerSession(authOptions);
+    const sessionId = cookies().get('cart_id')?.value;
 
-    if (!cartId) {
-      return NextResponse.json({ message: 'Cart not found' }, { status: 404 });
+    let cart;
+    if (session) {
+      cart = await Cart.findOne({ userId: session.user.id });
+    } else if (sessionId) {
+      cart = await Cart.findOne({ sessionId });
     }
 
-    const cart = await Cart.findOne({ cartId });
     if (!cart) {
       return NextResponse.json({ message: 'Cart not found' }, { status: 404 });
     }
 
-    cart.items = cart.items.filter(item => item._id.toString() !== itemId);
+    cart.items = cart.items.filter(item => item.productId.toString() !== itemId);
     await cart.save();
 
-    const updatedCart = await Cart.findOne({ cartId }).populate('items.product');
+    const updatedCart = await cart.populate('items.productId');
     return NextResponse.json(updatedCart);
   } catch (error) {
     console.error('Error deleting cart item:', error);

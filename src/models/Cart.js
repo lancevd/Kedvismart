@@ -35,5 +35,5 @@ const cartSchema = new mongoose.Schema({
 // Index for faster lookup by userId or sessionId
 cartSchema.index({ userId: 1, sessionId: 1 });
 
-export default mongoose.model('Cart', cartSchema);
+export default mongoose.models.Cart || mongoose.model('Cart', cartSchema);
 

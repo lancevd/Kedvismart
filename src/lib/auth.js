@@ -1,12 +1,15 @@
-
 import bcrypt from 'bcryptjs';
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
+import User from '@/models/User';
+import Cart from '@/models/Cart';
+import { cookies } from 'next/headers';
 
-/**
- * NextAuth configuration
- * This file exports the options object for NextAuth.
- * In Next.js 13+ app router, you can use this in route handlers.
- */
+async function connectDB() {
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MONGO_URI);
+  }
+}
+
 export default {
   providers: [
     {
@@ -19,25 +22,16 @@ export default {
       },
       authorize: async (credentials) => {
         const { email, password } = credentials;
-        if (!email || !password) {
-          return null;
-        }
+        if (!email || !password) return null;
 
-        const client = await MongoClient.connect(process.env.MONGO_URI);
-        const db = client.db();
-        const user = await db.collection('users').findOne({ email });
-        await client.close();
+        await connectDB();
+        const user = await User.findOne({ email });
 
-        if (!user) {
-          return null;
-        }
+        if (!user) return null;
 
         const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) {
-          return null;
-        }
+        if (!isValid) return null;
 
-        // Return user object (excluding password)
         return {
           id: user._id.toString(),
           email: user.email,
@@ -46,7 +40,6 @@ export default {
         };
       },
     },
-    // Add other providers like Google if needed
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -64,6 +57,40 @@ export default {
       return session;
     },
   },
+  events: {
+    async signIn({ user }) {
+      // Logic to merge guest cart into user cart
+      await connectDB();
+      const sessionId = cookies().get('cart_id')?.value;
+      if (sessionId) {
+        const guestCart = await Cart.findOne({ sessionId });
+        const userCart = await Cart.findOne({ userId: user.id });
+
+        if (guestCart) {
+          if (userCart) {
+            // Merge items
+            guestCart.items.forEach(gItem => {
+              const existingItem = userCart.items.find(uItem => 
+                uItem.productId.toString() === gItem.productId.toString()
+              );
+              if (existingItem) {
+                existingItem.quantity += gItem.quantity;
+              } else {
+                userCart.items.push(gItem);
+              }
+            });
+            await userCart.save();
+            await Cart.deleteOne({ _id: guestCart._id });
+          } else {
+            // Transfer cart to user
+            guestCart.userId = user.id;
+            guestCart.sessionId = undefined;
+            await guestCart.save();
+          }
+        }
+      }
+    }
+  },
   pages: {
     signIn: '/login',
     signUp: '/register',
@@ -71,4 +98,3 @@ export default {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-

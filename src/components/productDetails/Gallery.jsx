@@ -1,44 +1,46 @@
 'use client'
 import React, { useState } from "react";
 
-const Gallery = ({items}) => {
-  const [imgSelector, setImgSelector] = useState(0)
-  const [imgUrl, setImgUrl] = useState("")
+const Gallery = ({ items, images }) => {
+  const [imgSelector, setImgSelector] = useState(0);
+  
+  // Support both 'items' and 'images' props for backward compatibility
+  // Normalise to an array of URLs
+  const displayImages = (images || items || []).map(img => {
+    if (typeof img === 'string') return img;
+    return img.url || img.secure_url || "https://via.placeholder.com/600";
+  });
 
+  // Ensure we have at least 3 placeholder slots if needed, or just map what we have
+  const mainImage = displayImages[imgSelector] || "https://via.placeholder.com/600";
 
   return (
     <div className="flex flex-col-reverse lg:flex-row gap-4">
+      {/* Thumbnails */}
       <div className="w-full lg:w-1/4 flex flex-row justify-between lg:flex-col gap-2">
-        {/* <div className="rounded-2xl overflow-hidden w-full"> */}
-        <img
-          onClick={()=>setImgSelector(0)}
-          src={items[0] ? items[0].url : "https://via.placeholder.com/200"}
-          alt=""
-          className={`rounded-2xl overflow-hidden w-full border ${imgSelector == 0 ? "border-2 border-black" : ""}`}
-        />
-        <img
-          onClick={()=>setImgSelector(1)}
-          src={items[1] ? items[1].url : "https://via.placeholder.com/200"}
-          alt=""
-          className={`rounded-2xl overflow-hidden w-full border ${imgSelector == 1 ? "border-2 border-black" : ""}`}
-        />
-        <img
-          onClick={()=>setImgSelector(2)}
-          src={items[2] ? items[2].url : "https://via.placeholder.com/200"}
-          alt=""
-          className={`rounded-2xl overflow-hidden w-full border ${imgSelector == 2 ? "border-2 border-black" : ""}`}
-        />
-        {/* </div> */}
+        {[0, 1, 2].map((index) => (
+          <div 
+            key={index}
+            onClick={() => setImgSelector(index)}
+            className={`cursor-pointer rounded-2xl overflow-hidden aspect-square border-2 transition-all ${
+              imgSelector === index ? "border-black scale-95" : "border-transparent opacity-60 hover:opacity-100"
+            }`}
+          >
+            <img
+              src={displayImages[index] || "https://via.placeholder.com/200"}
+              alt={`Gallery thumbnail ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
       </div>
-      <div className="w-full lg:w-3/4 border rounded-2xl overflow-hidden">
+
+      {/* Main Image */}
+      <div className="w-full lg:w-3/4 border rounded-2xl overflow-hidden aspect-square bg-gray-50">
         <img
-          src={
-            items[imgSelector]
-              ? items[imgSelector].url
-              : "https://via.placeholder.com/200"
-          }
-          className="w-full h-full"
-          alt=""
+          src={mainImage}
+          className="w-full h-full object-contain"
+          alt="Product main gallery"
         />
       </div>
     </div>
