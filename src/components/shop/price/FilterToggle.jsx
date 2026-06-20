@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TbChevronDown, TbChevronRight } from "react-icons/tb";
 import PriceFilter from "./PriceFilter";
 
-const FilterToggle = ({ items, title }) => {
+const FilterToggle = ({ items, title, onPriceChange }) => {
   const [openIndex, setOpenIndex] = useState(true);
 
   const handleToggle = () => {
@@ -22,7 +22,7 @@ const FilterToggle = ({ items, title }) => {
       </div>
       {openIndex && (
         <div className="ml-3">
-          <PriceFilter />
+          <PriceFilter onPriceChange={onPriceChange} />
         </div>
       )}
     </div>

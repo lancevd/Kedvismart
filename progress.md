@@ -4,13 +4,13 @@
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| Phase 0 � Preparation & Environment Setup | Verify environment, install packages, create utilities, branch. | Completed |
-| Phase 1 � Data Models & Database Seeding | Define Mongoose schemas, seed script, run seeding, test connection. | Completed (see notes) |
-| Phase 2 � Admin Dashboard (Product & Category Management) | Build protected admin UI with CRUD for products and categories, image upload via Cloudinary. | Completed (see notes) |
-| Phase 3 � Public Shop & Product Details (Using MongoDB) | Replace static data with API calls, implement voice search redirect, filtering, product detail page. | Not Started |
-| Phase 4 � Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Not Started |
-| Phase 5 � Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Not Started |
-| Phase 6 � Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | Not Started |
+| Phase 0  Preparation & Environment Setup | Verify environment, install packages, create utilities, branch. | Completed |
+| Phase 1  Data Models & Database Seeding | Define Mongoose schemas, seed script, run seeding, test connection. | Completed (see notes) |
+| Phase 2  Admin Dashboard (Product & Category Management) | Build protected admin UI with CRUD for products and categories, image upload via Cloudinary. | Completed (see notes) |
+| Phase 3  Public Shop & Product Details (Using MongoDB) | Replace static data with API calls, implement voice search redirect, filtering, product detail page. | Completed |
+| Phase 4  Authentication & Persistent Cart | Add user login/registration via NextAuth, tie cart to user, merge guest cart on login. | Not Started |
+| Phase 5  Voice Search Refinement & UX Polish | Expand voice grammar, add feedback, accessibility, optional caching. | Not Started |
+| Phase 6  Testing, Deployment & Documentation | Write tests, error handling, deploy, update docs. | Not Started |
 
 ## Notes
 
@@ -57,7 +57,19 @@
 - Renamed postcss.config.js to postcss.config.cjs and tailwind.config.js to tailwind.config.cjs to avoid ES module errors because the project's package.json has "type": "module".
 - This ensures that Next.js can load these configuration files via CommonJS require.
 
+### Phase 3
+- Successfully seeded the database with categories, products, and admin users using `scripts/seed.cjs`.
+- Rewrote the public shop page (`src/app/shop/page.jsx`) to handle live filtering state (category, price).
+- Updated `FilterBar.jsx` to fetch live categories from the MongoDB API.
+- Implemented price range filtering via `PriceFilter` and `FilterToggle`.
+- Refactored `Products.jsx` and `ProductCard.jsx` to fetch and render live data from `/api/products`.
+- Created a dynamic product detail page at `src/app/products/[slug]/page.jsx` which fetches data via a new slug-based API route.
+- Implemented a complete MongoDB-backed Cart API (`/api/cart` and `/api/cart/items/[itemId]`).
+- Updated `cartContext.js` to use these new RESTful routes, replacing the previous Commerce.js integration.
+
 ## Pending Items
-- Implement registration page and user-specific cart persistence (Phase?4).
-- Implement public shop and product details using the new API (Phase?3).
-- Enhance voice search integration with the new API (Phase?5).
+- Implement user registration page and refine Phase 4 auth features.
+- Merge guest cart with user cart upon login (Phase 4).
+- Enhance voice search integration with more robust grammar and feedback (Phase 5).
+
+

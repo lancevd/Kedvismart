@@ -1,9 +1,8 @@
 import PriceSlider from "./PriceSlider";
 
-const PriceFilter = () => {
+const PriceFilter = ({ onPriceChange }) => {
   const handlePriceChange = (range) => {
-    // Implement logic to handle price filter
-    console.log("Price Range:", range);
+    onPriceChange({ min: range[0], max: range[1] });
   };
 
   return (

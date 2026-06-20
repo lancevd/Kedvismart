@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
@@ -74,7 +75,7 @@ export default function LoginPage() {
         </form>
         <p className="mt-4 text-sm text-gray-500 text-center">
           Or sign in with:{' '}
-        </div>
+        </p>
       </div>
     </div>
   );

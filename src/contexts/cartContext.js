@@ -6,102 +6,81 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState({ items: [], totalPrice: 0 });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeCart();
+    getCart();
   }, []);
-
-  const initializeCart = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.get(`/api/cart/initializeCart`);
-      if (response.status === 200) {
-        const result = await response.data;
-        setCart(result);
-        setCookie("cart_id", result.id);
-      } else {
-        throw new Error("Failed to initialize cart");
-      }
-    } catch (error) {
-      setError(error.message || "Failed to initialize cart");
-      console.error("Cart initialization error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getCart = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/api/cart/cartStatus`);
+      const response = await axios.get(`/api/cart`);
       if (response.status === 200) {
-        const result = await response.data;
-        setCart(result);
-        setCookie("cart_id", result.id);
-      } else {
-        throw new Error("Failed to fetch cart");
+        setCart(response.data);
       }
     } catch (error) {
-      setError(error.message || "Failed to fetch cart");
       console.error("Cart fetch error:", error);
+      setError("Failed to fetch cart");
     } finally {
       setLoading(false);
     }
   };
 
-  const addItemToCart = async (productID, quantity) => {
+  const addItemToCart = async (productID, quantity, color = "", size = "") => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`/api/cart/cartStatus`, {
-        id: productID,
-        quantity: quantity,
+      const response = await axios.post(`/api/cart`, {
+        productId: productID,
+        quantity,
+        color,
+        size
       });
       if (response.status === 200) {
-        const result = await response.data;
-        setCart(result);
-        return result;
-      } else {
-        throw new Error("Failed to add item to cart");
+        setCart(response.data);
+        return response.data;
       }
     } catch (error) {
-      setError(error.message || "Failed to add item to cart");
       console.error("Add to cart error:", error);
+      setError("Failed to add item to cart");
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const updateItemQuantity = async (productID, quantity) => {
-    const ID = getCookie("cart_id");
-    const response = await axios.put(
-      `/api/cart/updateCart`,
-      {
-        id: productID,
-        quantity: quantity,
-      },
-      {
-        headers: {
-          "X-Authorization": process.env.NEXT_PUBLIC_API_KEY,
-        },
+  const updateItemQuantity = async (itemId, quantity) => {
+    try {
+      setLoading(true);
+      const response = await axios.put(`/api/cart/items/${itemId}`, { quantity });
+      if (response.status === 200) {
+        setCart(response.data);
       }
-    );
-    if (response.status !== 200) {
-      console.log("Error don happen o!");
+    } catch (error) {
+      console.error("Update quantity error:", error);
+      setError("Failed to update quantity");
+    } finally {
+      setLoading(false);
     }
-    console.log(response);
-    const result = await response.data;
-    getCart();
   };
 
-  const removeItemFromCart = async (productID) => {
-    // Implementation needed
+  const removeItemFromCart = async (itemId) => {
+    try {
+      setLoading(true);
+      const response = await axios.delete(`/api/cart/items/${itemId}`);
+      if (response.status === 200) {
+        setCart(response.data);
+      }
+    } catch (error) {
+      console.error("Remove item error:", error);
+      setError("Failed to remove item");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

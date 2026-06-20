@@ -1,16 +1,18 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
 
 const productSchema = z.object({
-  name: z.string().min(2),
-  slug: z.string().min(2),
-  description: z.string().min(10),
-  price: z.number().positive(),
-  category: z.string().min(1),
-  images: z.array(z.string().url()).min(1, 'At least one image required'),
-  stock: z.number().nonnegative(),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  slug: z.string().min(2, 'Slug must be at least 2 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  price: z.coerce.number().positive('Price must be positive'),
+  category: z.string().min(1, 'Please select a category'),
+  stock: z.coerce.number().nonnegative('Stock cannot be negative'),
   isActive: z.boolean().default(true),
 });
 
@@ -18,55 +20,39 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id;
+
   const [categories, setCategories] = useState([]);
-  const [loadingCats, setLoadingCats] = useState(true);
-  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [imageUrls, setImageUrls] = useState([]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    control,
-    watch,
   } = useForm({
-    resolver: z => productSchema.parse(z),
-    defaultValues: {
-      name: '',
-      slug: '',
-      description: '',
-      price: '',
-      category: '',
-      images: [],
-      stock: 0,
-      isActive: true,
-    },
+    resolver: zodResolver(productSchema),
   });
 
-  // Fetch categories and product on mount
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch categories
-        const catRes = await fetch('/api/categories');
+        const [catRes, prodRes] = await Promise.all([
+          fetch('/api/categories'),
+          fetch(`/api/products/${productId}`),
+        ]);
         if (!catRes.ok) throw new Error('Failed to fetch categories');
-        const catData = await catRes.json();
-        setCategories(catData);
-
-        // Fetch product
-        const prodRes = await fetch(`/api/products/${productId}`);
         if (!prodRes.ok) throw new Error('Failed to fetch product');
-        const prodData = await prodRes.json();
-        // Convert price from kobo to NGN for display
-        setProduct(prodData);
+        const [catData, prodData] = await Promise.all([catRes.json(), prodRes.json()]);
+        setCategories(catData);
+        setImageUrls(prodData.images || []);
         reset({
           name: prodData.name,
           slug: prodData.slug,
           description: prodData.description,
           price: (prodData.price / 100).toFixed(2),
           category: prodData.category?._id?.toString() || '',
-          images: prodData.images || [],
           stock: prodData.stock,
           isActive: prodData.isActive,
         });
@@ -76,104 +62,80 @@ export default function EditProductPage() {
         router.push('/admin/products');
       } finally {
         setLoading(false);
-        setLoadingCats(false);
       }
     }
-    fetchData();
-  }, [productId, reset]);
+    if (productId) fetchData();
+  }, [productId, reset, router]);
 
   const onSubmit = async (data) => {
+    setSubmitting(true);
     try {
       const res = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          price: Math.round(parseFloat(data.price) * 100), // convert to kobo
-          category: data.category, // expecting ObjectId string
-        }),
+        body: JSON.stringify({ ...data, images: imageUrls }),
       });
       if (!res.ok) throw new Error('Failed to update product');
       router.push('/admin/products');
     } catch (err) {
       console.error(err);
       alert('Error updating product');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Simple image URL input (for demo)
-  const [imageUrls, setImageUrls] = useState([]);
-  const addImageUrl = (url) => {
-    setImageUrls(prev => [...prev, url]);
-  };
-
-  // Sync form images with imageUrls state when form changes
-  useEffect(() => {
-    const imgs = watch('images');
-    if (imgs) setImageUrls(imgs);
-  }, [watch]);
-
-  if (loading) return <p>Loading...</p>;
-  if (!product) return <p>Product not found.</p>;
+  if (loading) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
+    <div className="p-6 max-w-2xl">
+      <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Name</label>
-          <input {...register('name')} className="border p-2 w-full rounded ${errors.name ? 'border-red-500' : ''}" />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+          <label className="block text-sm font-medium mb-1">Name</label>
+          <input {...register('name')} className={`border p-2 w-full rounded ${errors.name ? 'border-red-500' : ''}`} />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Slug</label>
-          <input {...register('slug')} className="border p-2 w-full rounded ${errors.slug ? 'border-red-500' : ''}" />
-          {errors.slug && <p className="text-red-500 text-sm">{errors.slug.message}</p>}
+          <label className="block text-sm font-medium mb-1">Slug</label>
+          <input {...register('slug')} className={`border p-2 w-full rounded ${errors.slug ? 'border-red-500' : ''}`} />
+          {errors.slug && <p className="text-red-500 text-sm mt-1">{errors.slug.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Description</label>
-          <textarea {...register('description')} className="border p-2 w-full rounded h-32 ${errors.description ? 'border-red-500' : ''}" />
-          {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+          <label className="block text-sm font-medium mb-1">Description</label>
+          <textarea {...register('description')} className={`border p-2 w-full rounded h-32 ${errors.description ? 'border-red-500' : ''}`} />
+          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Price (NGN)</label>
-          <input type="number" step="0.01" {...register('price')} className="border p-2 w-full rounded ${errors.price ? 'border-red-500' : ''}" />
-          {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+          <label className="block text-sm font-medium mb-1">Price (NGN)</label>
+          <input type="number" step="0.01" {...register('price')} className={`border p-2 w-full rounded ${errors.price ? 'border-red-500' : ''}`} />
+          {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Category</label>
-          <select {...register('category')} className="border p-2 w-full rounded ${errors.category ? 'border-red-500' : ''}">
+          <label className="block text-sm font-medium mb-1">Category</label>
+          <select {...register('category')} className={`border p-2 w-full rounded ${errors.category ? 'border-red-500' : ''}`}>
             <option value="">Select category</option>
-            {loadingCats ? (
-              <option>Loading...</option>
-            ) : (
-              categories.map(c => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))
-            )}
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>{c.name}</option>
+            ))}
           </select>
-          {errors.category && <p className="text-red-500 text-sm">{errors.category.message}</p>}
+          {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Stock</label>
-          <input type="number" {...register('stock')} className="border p-2 w-full rounded ${errors.stock ? 'border-red-500' : ''}" />
-          {errors.stock && <p className="text-red-500 text-sm">{errors.stock.message}</p>}
+          <label className="block text-sm font-medium mb-1">Stock</label>
+          <input type="number" {...register('stock')} className={`border p-2 w-full rounded ${errors.stock ? 'border-red-500' : ''}`} />
+          {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock.message}</p>}
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" {...register('isActive')} className="h-4 w-4" id="isActive" />
+          <label htmlFor="isActive" className="text-sm font-medium">Active</label>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Active</label>
-          <input type="checkbox" {...register('isActive')} className="h-4 w-4" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Image URLs (comma separated or one per line)</label>
+          <label className="block text-sm font-medium mb-1">Image URLs (one per line)</label>
           <textarea
             value={imageUrls.join('\n')}
-            onChange={e => {
-              const urls = e.target.value
-                .split(/\r?\n/)
-                .map(u => u.trim())
-                .filter(u => u.length > 0);
+            onChange={(e) => {
+              const urls = e.target.value.split(/\r?\n/).map((u) => u.trim()).filter((u) => u.length > 0);
               setImageUrls(urls);
             }}
             className="border p-2 w-full rounded h-24"
@@ -181,28 +143,17 @@ export default function EditProductPage() {
           />
         </div>
         {imageUrls.length > 0 && (
-          <div className="mt-4">
-            <h3 className="font-semibold mb-2">Preview:</h3>
-            <div className="flex gap-4">
-              {imageUrls.map((url, idx) => (
-                <img key={idx} src={url} alt={`Product ${idx}`} className="w-32 h-32 object-cover border" />
-              ))}
-            </div>
+          <div className="flex gap-4 flex-wrap">
+            {imageUrls.map((url, idx) => (
+              <img key={idx} src={url} alt={`Preview ${idx}`} className="w-24 h-24 object-cover border rounded" />
+            ))}
           </div>
         )}
-        <div className="flex items-center">
-          <button
-            type="submit"
-            disabled={uploading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {uploading ? 'Saving...' : 'Update Product'}
+        <div className="flex items-center gap-4 pt-2">
+          <button type="submit" disabled={submitting} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+            {submitting ? 'Saving...' : 'Update Product'}
           </button>
-          <button
-            type="button"
-            onClick={() => router.push('/admin/products')}
-            className="ml-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
+          <button type="button" onClick={() => router.push('/admin/products')} className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">
             Cancel
           </button>
         </div>
